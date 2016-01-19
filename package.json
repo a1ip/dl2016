@@ -1,0 +1,99 @@
+{
+  "name": "@chiv/datalaboratory-ru-2016-01",
+  "version": "0.0.0-s0",
+  "license": "MIT",
+  "repository": "git@github.com:chiv-interview/----.git",
+
+  "scripts": {
+    "clean": "npm run rm-out",
+    "build-debug": "npm run js-build-debug && npm run sass-build",
+    "build": "npm run js-build && npm run sass-build",
+
+    "js-build-debug": "npm run mk-out && browserify -d src/app.js > static/out/datalaboratory-ru-2016-01.js",
+    "js-build": "npm run mk-out && browserify src/app.js > static/out/datalaboratory-ru-2016-01.js",
+    "js-watch": "npm run mk-out && watchify src/app.js -d -o static/out/datalaboratory-ru-2016-01.js -v",
+
+    "sass-build": "node-sass --importer node_modules/node-sass-globbing/index.js src/sass-init.css > static/out/datalaboratory-ru-2016-01.css",
+    "sass-watch": "chokidar 'src/**/*.scss' -c 'npm run sass-build'",
+
+    "tests-build": "babel test src --out-dir out",
+    "tests-watch": "babel src test --watch --out-dir out --source-maps",
+    "test": "npm run clean && npm run tests-build && npm run just-test",
+    "just-test": "nodeunit out/tests",
+
+    "prebuild-browser-test": "npm run tests-build && mkdir -p out/test",
+    "build-browser-test": "browserify -d \"out/test-browser.js\" > out/test/index.js",
+    "postbuild-browser-test": "copyfiles -u 1 test/index.html out/test",
+
+    "mk-out": "mkdir -p static/out mkdir -p out",
+    "rm-out": "rm -rf static/out out"
+  },
+
+  "babel": {
+    "presets": ["es2015"],
+    "plugins": [
+      "babel-plugin-syntax-jsx",
+      "transform-react-jsx",
+      "syntax-object-rest-spread",
+      "transform-object-rest-spread"
+    ]
+  },
+
+  "browserify": {
+    "transform": [
+      ["babelify", {
+        "presets": ["es2015"],
+        "plugins": [
+          "babel-plugin-syntax-jsx",
+          "transform-react-jsx",
+          "syntax-object-rest-spread",
+          "transform-object-rest-spread"
+        ]
+      }],
+      ["require-globify"]
+    ]
+  },
+
+  "//devDeps descriptions": {
+    "browserify": "JS files transformation",
+    "require-globify": "Allows dynamic requires in browserify",
+    "watchify": "Watches JS files",
+    "node-sass": "Build CSS",
+    "node-sass-globbing": "Custom importer for Sass allows to import subfolders",
+    "chokidar-cli": "Watches files, we use it to build SASS (scss)",
+    "nodeunit": "Unit testing",
+    "copyfiles": "Cross OS copying",
+    "babel...": "Babel. Transforms .jsx and es6",
+
+    "//": "All other tools are used in built code.",
+    "//": "May be it's better to move it from devDependencies to dependencies",
+    "//": "But since everything is packed to single bundled.js, I don't see a reason for that",
+    "redux": "To organize logic",
+    "react-redux": "To bind Redux with React",
+    "react": "React",
+    "react-dom": "React",
+    "classnames": "Class names manipulation in React",
+    "moment": "We don't use JIRA's moment@2.6.0 because of GIT-605"
+  },
+
+  
+  "devDependencies": {
+    "browserify": "11.2.0",
+    "require-globify": "1.3.0",
+    "watchify": "3.6.0",
+    "node-sass": "3.4.2",
+    "node-sass-globbing": "0.0.23",
+    "chokidar-cli": "1.0.1",
+    "nodeunit": "0.9.1",
+    "copyfiles": "0.2.1",
+    "babel-cli": "6.3.17",
+    "babelify": "7.2.0",
+    "babel-preset-es2015": "6.3.13",
+    "babel-plugin-syntax-object-rest-spread": "6.3.13",
+    "babel-plugin-transform-object-rest-spread": "6.3.13",
+    "babel-plugin-transform-react-jsx": "6.3.13",
+    "babel-plugin-syntax-jsx": "6.3.13"
+
+
+  }
+}
