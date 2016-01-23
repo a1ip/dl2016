@@ -1,3 +1,121 @@
-body {
-  background: green;
+.chd-page {
+    width: 860px;
+    font-family: Helvetica;
+    border: solid 1px #ddd;
+    padding: 22px 30px;
 }
+.chd-page__c0 {
+    display: inline-block;
+    vertical-align: middle;
+    padding-bottom: 20px;
+}
+.chd-page__c1 {
+    display: inline-block;
+    vertical-align: top;
+}
+.chd-page__c01 {
+    padding-right: 16px;
+}
+.chd-page__c03 {
+    display: block;
+    float: right;
+}
+.chd-page__c11 {
+    padding-right: 25px;
+}
+.chd-page__c12 {
+    padding-right: 25px;
+}
+
+
+.chd-row3__c {
+    display: inline-block;
+    padding-bottom: 6px;
+}
+
+.chd-row3__c1 {
+    width: 88px;
+    padding-right:12px;
+}
+
+.chd-row3__c2 {
+    width: 68px;
+    padding-right:12px;
+}
+
+.chd-row3__c3 {
+    width: 78px;
+}
+
+
+.chd-header {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+
+.chd-with-deposits-checkbox__label {
+    font-size: 13px;
+}
+.chd-cur-currency-selector__label {
+    font-size: 13px;
+}
+
+.chd-user-form {
+    font-size: 13px;
+}
+.chd-user-form-header__c {
+    font-weight: bold;
+}
+
+.chd-user-value-row__sign {
+    display: inline-block;
+    width: 10px;
+    padding-right: 8px;
+}
+
+.chd-user-value-row__amount-input {
+    width: 64px;
+    border-width: 2px;
+    padding: 1px;
+    margin: 0px;
+}
+
+.chd-user-value-row__rate-input {
+    width: 57px;
+    border-width: 2px;
+    padding: 1px;
+    margin: 0px;
+}
+
+.chd-history-chart {
+    width: 272px;
+    height: 223px;
+    font-weight: bold;
+    font-size: 13px;
+    background: #ccc;
+}
+
+.chd-user-chart {
+    width: 276px;
+    height: 223px;
+    font-weight: bold;
+    font-size: 13px;
+    background: #ccc;
+}
+
+/*
+.chd-header {
+    font-size: 22px;
+    font-weight: bold;
+    font-family: Helvetica;
+    
+    position: absolute;
+    top: 492px;
+    left: 93px;
+    width: 238px;
+    height: 22px;
+    background: rgba(100, 100, 100, 0.498039);
+    color: green;
+}
+ */
