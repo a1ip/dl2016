@@ -11,7 +11,7 @@
 
     "js-build-debug": "npm run mk-out && browserify -d src/app.js > static/out/datalaboratory-ru-2016-01.js",
     "js-build": "npm run mk-out && browserify src/app.js > static/out/datalaboratory-ru-2016-01.js",
-    "js-watch": "npm run mk-out && watchify src/app.js -d -o static/out/datalaboratory-ru-2016-01.js -v",
+    "js-watch": "npm run mk-out && watchify src/app.js -p browserify-hmr -d -o static/out/datalaboratory-ru-2016-01.js -v",
 
     "sass-build": "node-sass --importer node_modules/node-sass-globbing/index.js src/sass-init.css > static/out/datalaboratory-ru-2016-01.css",
     "sass-watch": "chokidar 'src/**/*.scss' -c 'npm run sass-build'",
@@ -58,6 +58,7 @@
     "browserify": "JS files transformation",
     "require-globify": "Allows dynamic requires in browserify",
     "watchify": "Watches JS files",
+    "browserify-hmr": "Allows hot reloading of reducers",
     "node-sass": "Build CSS",
     "node-sass-globbing": "Custom importer for Sass allows to import subfolders",
     "chokidar-cli": "Watches files, we use it to build SASS (scss)",
@@ -81,6 +82,7 @@
     "browserify": "11.2.0",
     "require-globify": "1.3.0",
     "watchify": "3.6.0",
+    "browserify-hmr": "0.3.1",
     "node-sass": "3.4.2",
     "node-sass-globbing": "0.0.23",
     "chokidar-cli": "1.0.1",
@@ -94,7 +96,19 @@
     "babel-plugin-transform-react-jsx": "6.3.13",
     "babel-plugin-syntax-jsx": "6.3.13",
 
+    "redux-devtools": "3.0.1",
+    "redux-devtools-log-monitor": "1.0.2",
+    "redux-devtools-dock-monitor": "1.0.1",
+
+    "promise": "7.1.1",
     "react": "0.14.6",
-    "react-dom": "0.14.6"
+    "react-dom": "0.14.6",
+    "classnames": "2.2.3",
+    "redux": "3.0.5",
+    "redux-thunk": "1.0.3",
+    "react-redux": "4.0.6",
+    "@evoja/ns-plain": "0.0.0-s1",
+    "@evoja/redux-actions": "0.0.0-s1",
+    "@evoja/redux-reducers": "0.0.0"
   }
 }
