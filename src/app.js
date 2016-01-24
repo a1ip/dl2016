@@ -20,10 +20,12 @@ function getReducer() {
   var uid = require('./actions/uid.js')
   var calc = require('./actions/calc.js')
   var ui = require('./actions/ui.js')
+  var history = require('./actions/history.js')
   return chainReducers([
       uid.reducer,
       calc.reducer,
       ui.reducer,
+      history.reducer
     ])
 }
 
@@ -50,48 +52,73 @@ store.dispatch = function() {
 }
 var calc = require('./actions/calc.js')
 store.dispatch(calc.act.setCurrencies({
-    rub: {
-      id: 'rub',
-      sign: '₽',
-      displayName: 'рубль',
-      price: 1
-    },
     usd: {
       id: 'usd',
       sign: '$',
       displayName: 'доллар США',
-      price: 79.95
+      price: 79.95,
+      color: '#22b'
+    },
+    rub: {
+      id: 'rub',
+      sign: '₽',
+      displayName: 'рубль',
+      price: 1,
+      color: '#b22'
+    },
+    eur: {
+      id: 'eur',
+      sign: 'E',
+      displayName: 'евро',
+      price: 79.95,
+      color: '#2b2'
+    },
+    yen: {
+      id: 'yen',
+      sign: 'Y',
+      displayName: 'йена',
+      price: 79.95,
+      color: '#b2b'
     }
   }))
 store.dispatch(calc.act.addUserValue({
     currencyId: 'rub',
     amount: 100000,
     rate: 10,
-    color: '#b22'
   }))
 store.dispatch(calc.act.addUserValue({
     currencyId: 'usd',
     amount: 1000,
     rate: 2,
-    color: '#2b2'
+  }))
+store.dispatch(calc.act.addUserValue({
+    currencyId: 'eur',
+    amount: 1000,
+    rate: 2,
+  }))
+store.dispatch(calc.act.addUserValue({
+    currencyId: 'yen',
+    amount: 1000,
+    rate: 2,
   }))
 
 
 
 function mapDispatchToProps(dispatch, {componentId}) {
-  var calc = require('./actions/calc.js')
-  var ui = require('./actions/ui.js')
+  var sources = [
+    './actions/calc.js',
+    './actions/ui.js',
+    './actions/history.js'
+  ]
   var funs = {}
-  for (var k in calc.act) {
-    if (typeof calc.act[k] === 'function') {
-      funs[k] = calc.act[k]
+  sources.forEach((source) => {
+    var {act} = require(source)
+    for (var k in act) {
+      if (typeof act[k] === 'function') {
+        funs[k] = act[k]
+      }
     }
-  }
-  for (var k in ui.act) {
-    if (typeof ui.act[k] === 'function') {
-      funs[k] = ui.act[k]
-    }
-  }
+  })
   return {
     funs: Redux.bindActionCreators(funs, dispatch)
   }
@@ -109,3 +136,8 @@ ReactDom.render(
   document.getElementById('datalaboratory-ru-2016-01-app')
 )
 
+
+
+/*
+TODO: The style of the button "+ Валюта"
+ */

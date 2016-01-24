@@ -31,7 +31,7 @@ var defaultState = {
   userValueCurrencyId: undefined,
 }
 
-var reducer1 = createComplexEvReducer(defaultState, [
+var reducerLocal = createComplexEvReducer(defaultState, [
   ['', act.OPEN_ADD_USER_VALUE, () => {
     return {...defaultState, isAddingUserValue: true}
   }],
@@ -42,7 +42,7 @@ var reducer1 = createComplexEvReducer(defaultState, [
   ['', act.CLOSE_POPUPS, () => defaultState],
 ]);
 
-var reducer2 = createComplexEvReducer([
+var reducerGlobal = createComplexEvReducer([
   ['', act.OPEN_EDIT_USER_VALUE, (state, {userValueId}) => {
     var userValue = state.calc.userValues[userValueId]
     if (!userValue) {
@@ -60,6 +60,6 @@ var reducer2 = createComplexEvReducer([
 
 module.exports = {
   act,
-  reducer: chainReducers([wrapEvReducer(STATE_NS, reducer1), reducer2])
+  reducer: chainReducers([wrapEvReducer(STATE_NS, reducerLocal), reducerGlobal])
 };
 

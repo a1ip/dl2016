@@ -1,18 +1,22 @@
 .chd-input-text {
     border: 1px solid #eee;
-    border-radius: 3px;
-    padding: 1px;
-    margin: 0px;
+    border-radius: $border_radius;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-top: -1px;
+    font-size: $font_size_main;
 }
 .chd-input-text:disabled {
-    color: $disabledTextColor;
+    color: $text_color_disabled;
 }
 
 .chd-input-select {
     border: solid 1px #def;
-    font-size: 13px;
+    border-radius: $border_radius;
     color: #4af;
     background: inherit;
+    width: 31px;
+    height: 21px;
 }
 
 .chd-color-picker {
@@ -20,3 +24,15 @@
     height: 16px;
     display: block;
 }
+
+.chd-title-small {
+    font-weight: bold;
+    line-height: 14px;
+}
+
+.chd-sub-title-small {
+    font-size: $font_size_small;
+    color: $text_color_light;
+}
+
+

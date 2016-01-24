@@ -1,0 +1,53 @@
+.chd-user-values {
+    font-size: $font_size_main;
+}
+
+.chd-user-values-header__c_disabled {
+    color: $text_color_disabled;
+}
+
+
+.chd-row3__c {
+    display: inline-block;
+    vertical-align: top;
+    margin-bottom: 5px;
+}
+
+.chd-row3__c1 {
+    width: 95px;
+    padding-right: 5px;
+}
+
+.chd-row3__c2 {
+    width: 73px;
+    padding-right:10px;
+}
+
+.chd-row3__c3 {
+    width: 78px;
+}
+
+
+.chd-user-value-row__sign {
+    text-align: center;
+    display: inline-block;
+    width: 11px;
+    margin-right: 7px;
+    color: $text_color_inverted;
+    border-radius: $border_radius;
+}
+
+.chd-user-value-row__amount {
+    width: 68px;
+}
+
+.chd-user-value-row__amount-cur {
+    padding-top:1px;
+    display: block;
+}
+
+.chd-user-value-row__rate {
+    width: 57px;
+}
+
+

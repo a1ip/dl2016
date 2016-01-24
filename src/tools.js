@@ -1,5 +1,6 @@
 'use strict'
-
+var React = require('react')
+var PureRenderMixin = require('react-addons-pure-render-mixin')
 var me = module.exports
 
 me.mapsep = (ids, values, iter) =>
@@ -24,3 +25,13 @@ me.formatNumber = (num) => {
 }
 
 me.removeSpaces = (x) => ('' + x).replace(/ /g, '')
+
+me.reactPure = (render, name) => typeof render !== 'function'
+  ? render
+  : React.createClass({
+      name: name || render.name,
+      mixins: [PureRenderMixin],
+      render: function() {
+        return render(this.props)
+      }
+    })

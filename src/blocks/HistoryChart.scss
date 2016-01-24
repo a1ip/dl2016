@@ -1,0 +1,23 @@
+.chd-history-chart {
+    width: 272px;
+    height: 223px;
+}
+.chd-history-chart__title {
+    margin-left: 29px;
+    padding-bottom: 7px;
+}
+.chd-history-chart__x {
+    margin-left: 30px;
+    display:block;
+}
+
+.chd-history-chart__chart {
+    width: 248px;
+    height: 190px;
+    border: solid 1px #eee;
+}
+
+.chd-history-chart__line {
+    fill: none;
+    stroke-width: 2px;
+}

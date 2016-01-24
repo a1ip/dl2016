@@ -1,0 +1,55 @@
+.chd-page {
+    position: relative;
+    // top: 26px;
+    width: 858px;
+    font-family: Helvetica;
+    font-size: $font_size_main;
+    border: solid 1px $border_color;
+    padding: 20px 30px;
+    // color: green;
+}
+.chd-page__c0 {
+    display: inline-block;
+    vertical-align: middle;
+    padding-bottom: 18px;
+}
+.chd-page__c1 {
+    display: inline-block;
+    vertical-align: top;
+}
+.chd-page__c01 {
+    padding-right: 14px;
+}
+.chd-page__c03 {
+    display: block;
+    float: right;
+    padding-top: 4px;
+}
+.chd-page__c11 {
+    padding-right: 20px;
+}
+.chd-page__c12 {
+    padding-right: 25px;
+}
+
+.chd-with-deposits-checkbox__label {
+    padding-left: 2px;
+}
+.chd-cur-currency-selector__label {
+    padding-right: 2px;
+}
+
+
+.chd-header {
+    font-size: 22.2px;
+    font-weight: bold;
+}
+
+
+.chd-user-chart {
+    width: 276px;
+    height: 223px;
+    font-weight: bold;
+    background: #ccc;
+}
+

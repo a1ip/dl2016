@@ -59,7 +59,6 @@ var reducer = createComplexEvReducer(defaultState, [
   ['withDeposits', act.SET_WITH_DEPOSITS, (_, {withDeposits}) => withDeposits],
 
   ['userValues.{userValue.id}', act.SET_USER_VALUE, (userValue, {userValue: newUserValue}) => {
-    console.log('ololo', userValue)
     userValue = assignExisting(userValue, newUserValue)
     userValue.amount = cleanAmount(userValue.amount)
     userValue.rate = cleanAmount(userValue.rate)
