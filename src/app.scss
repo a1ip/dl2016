@@ -2,7 +2,7 @@
     position: relative;
     width: 860px;
     font-family: Helvetica;
-    border: solid 1px #ddd;
+    border: solid 1px $borderColor;
     padding: 22px 30px;
 }
 .chd-page__c0 {
@@ -70,6 +70,9 @@
     font-weight: bold;
     line-height: 16px;
 }
+.chd-user-form-header__c_disabled {
+    color: $disabledTextColor;
+}
 
 .chd-user-value-row__sign {
     text-align: center;
@@ -121,7 +124,7 @@
     margin: auto;
     width: 300px;
     background: white;
-    border: solid 1px #eee;
+    border: solid 1px $borderColor;
     margin-top: 100px;
     padding: 20px 30px;
 }

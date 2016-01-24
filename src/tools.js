@@ -14,7 +14,7 @@ me.assignExisting = (to, from) => {
 }
 
 me.formatNumber = (num) => {
-  var str = num + ''
+  var str = isNaN(Number(num)) ? '' : ('' + num);
   for(var k = 1, i = str.length - 1; i > 0; --i, ++k) {
     if (k % 3 == 0) {
       str = str.substring(0, i) + ' ' + str.substring(i)

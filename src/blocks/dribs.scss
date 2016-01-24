@@ -4,6 +4,9 @@
     padding: 1px;
     margin: 0px;
 }
+.chd-input-text:disabled {
+    color: $disabledTextColor;
+}
 
 .chd-input-select {
     border: solid 1px #def;

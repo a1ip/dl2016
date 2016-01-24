@@ -136,23 +136,24 @@ function Row3(props) {
 function UserFormHeader(props) {
   var {currencies, curCurrencyId, withDeposits} = props.calc
   var curCurrencySign = curCurrencyId && currencies[curCurrencyId] && currencies[curCurrencyId].sign || '-'
+  var ratesClassName = classNames('chd-user-form-header__c',
+    {'chd-user-form-header__c_disabled': !withDeposits})
   return (
     <Row3>
       <span className='chd-user-form-header__c'>Сбережения<br/>&nbsp;</span>
       <span className='chd-user-form-header__c'>В моей валюте, {curCurrencySign}</span>
-      <span className='chd-user-form-header__c'>Ставки вкладов, %</span>
+      <span className={ratesClassName}>Ставки вкладов, %</span>
     </Row3>
   )
 }
 
 function UserValueRow(props) {
   var userValueId = props.userValueId
-  var {currencies, userValues, curCurrencyId} = props.calc
+  var {currencies, userValues, curCurrencyId, withDeposits} = props.calc
   var {currencyId, amount, rate, color} = userValues[userValueId]
   var {sign, price} = currencies[currencyId]
   var {price: curPrice} = currencies[curCurrencyId]
   var {setUserValue, openEditUserValue} = props.funs
-
   return (
     <Row3>
       <div>
@@ -174,6 +175,7 @@ function UserValueRow(props) {
       <div className='chd-user-value-row__cell'>
         <InputText className='chd-user-value-row__rate-input'
                value={formatNumber(rate)}
+               disabled={!withDeposits}
                onChange={({target: {value}}) =>
                   setUserValue({id: userValueId, rate: value.trim()})}/>
       </div>
