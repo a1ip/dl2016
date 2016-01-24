@@ -6,10 +6,9 @@ var Redux = require('redux')
 var thunk = require('redux-thunk')
 var {Provider, connect} = require('react-redux')
 var {chainReducers} = require('@evoja/redux-reducers')
-var {Page} = require('./blocks.jsx')
+var Page = require('./blocks/Page.jsx')
 import DevTools from './DevTools.jsx'
 
-console.log(DevTools.instrument);
 
 var createStore = Redux.compose(
   Redux.applyMiddleware(thunk),
@@ -20,34 +19,37 @@ var createStore = Redux.compose(
 function getReducer() {
   var uid = require('./actions/uid.js')
   var calc = require('./actions/calc.js')
+  var ui = require('./actions/ui.js')
   return chainReducers([
       uid.reducer,
       calc.reducer,
+      ui.reducer,
     ])
 }
 
 
 var store = createStore(getReducer())
 // Hot reload reducers (requires Webpack or Browserify HMR to be enabled)
+
+function refreshStore() {
+  store.replaceReducer(getReducer())
+}
 if (module.hot) {
-  module.hot.accept('./actions/uid.js', () =>
-    store.replaceReducer(getReducer())
-  );
-  module.hot.accept('./actions/calc.js', () =>
-    store.replaceReducer(getReducer())
-  );
+  module.hot.accept('./actions/uid.js', refreshStore)
+  module.hot.accept('./actions/calc.js', refreshStore)
+  module.hot.accept('./actions/ui.js', refreshStore)
 }
 
-
-function dispatch() {
-  var r = store.dispatch.apply(store, arguments)
+var origDispatch = store.dispatch
+store.dispatch = function() {
+  var r = origDispatch.apply(store, arguments)
   if (r instanceof Promise) {
     r.then(null, function(e) {console.error(e)})
   }
   return r
 }
 var calc = require('./actions/calc.js')
-dispatch(calc.act.setCurrencies({
+store.dispatch(calc.act.setCurrencies({
     rub: {
       id: 'rub',
       sign: '₽',
@@ -61,34 +63,35 @@ dispatch(calc.act.setCurrencies({
       price: 79.95
     }
   }))
-dispatch(calc.act.addUserValue({
+store.dispatch(calc.act.addUserValue({
     currencyId: 'rub',
     amount: 100000,
-    rate: 10
+    rate: 10,
+    color: '#b22'
   }))
-dispatch(calc.act.addUserValue({
+store.dispatch(calc.act.addUserValue({
     currencyId: 'usd',
     amount: 1000,
-    rate: 2
+    rate: 2,
+    color: '#2b2'
   }))
-
 
 
 
 function mapDispatchToProps(dispatch, {componentId}) {
   var calc = require('./actions/calc.js')
+  var ui = require('./actions/ui.js')
   var funs = {}
   for (var k in calc.act) {
     if (typeof calc.act[k] === 'function') {
       funs[k] = calc.act[k]
     }
   }
-  // return {funs}
-  // for (var k in ui.act) {
-  //   if (typeof ui.act[k] === 'function') {
-  //     funs[k] = ui.act[k]
-  //   }
-  // }
+  for (var k in ui.act) {
+    if (typeof ui.act[k] === 'function') {
+      funs[k] = ui.act[k]
+    }
+  }
   return {
     funs: Redux.bindActionCreators(funs, dispatch)
   }

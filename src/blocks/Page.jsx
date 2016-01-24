@@ -1,6 +1,9 @@
 'use strict'
 var React = require('react')
-var {mapsep} = require('./tools.js')
+var classNames = require('classnames')
+var {mapsep, formatNumber} = require('../tools.js')
+var {InputText, InputSelect, ColorPicker} = require('./dribs.jsx')
+
 /**
  *
  * * funs
@@ -8,9 +11,10 @@ var {mapsep} = require('./tools.js')
  *     * changeCurCurrency(currencyId)
  *     * changeUserValue(userValueId, currencyId, amount, rate)
  *     * deleteUserValue(userValueId)
- *     * showCurrencySelectorForUserValue(userValueId)
- *     * showCurrencySelectorForAddingUserValue()
+ *     * openEditUserValue(userValueId)
+ *     * openAddUserValue()
  *     * hideCurrencySelector()
+ *     * setUserValueColor(color)
  *
  * * calc
  *     * withDeposits - boolean
@@ -22,7 +26,7 @@ var {mapsep} = require('./tools.js')
  * * ui
  *     * isAddingUserValue - boolean
  *     * editingUserValueId - undefined or userValueId
- *     * isEditingCurCurrency - boolean
+ *     * userValueColor
  *
  * Where:
  * * currency
@@ -33,6 +37,7 @@ var {mapsep} = require('./tools.js')
  * * userValue
  *     * id
  *     * currencyId
+ *     * color
  *     * amount
  *     * rate
  */
@@ -62,6 +67,7 @@ function Page (props) {
           <UserChart {...props}/>
         </span>
       </div>
+      <UserValueDialog {...props}/>
     </div>
   )
 }
@@ -77,7 +83,7 @@ function WithDepositsCheckbox(props) {
     <div className='chd-with-deposits-checkbox'>
       <input type='checkbox' checked={withDeposits}
              onChange={({target: {checked}}) => setWithDeposits(checked)}/>
-      <span className='chd-with-deposits-checkbox__label'> С вкладами</span>
+      <span className='chd-with-deposits-checkbox__label'>С вкладами</span>
     </div>
   )
 }
@@ -88,19 +94,20 @@ function CurCurrencySelector(props) {
   return (
     <div className='chd-cur-currency-selector'>
       <span className='chd-cur-currency-selector__label'>Моя валюта </span>
-      <select value={curCurrencyId}
+      <InputSelect className='chd-cur-currency-selector__select'
+              value={curCurrencyId}
               onChange={({target: {value}}) => setCurCurrency(value)}>
         {mapsep(currencyIds, currencies,
           ({sign}, id) => <option value={id} key={id}>{sign}</option>
         )}
-      </select>
+      </InputSelect>
     </div>
   )
 }
 
 function UserForm (props) {
   var {currencies, userValues, userValueIds, withDeposits} = props.calc
-  var {changeUserValue, addValue} = props.funs
+  var {changeUserValue, addValue, openAddUserValue} = props.funs
   return (
     <div className='chd-user-form'>
       <UserFormHeader {...props}/>
@@ -110,6 +117,7 @@ function UserForm (props) {
                       key={id}
                       changeValue={changeUserValue}/>
       )}
+      <button onClick={openAddUserValue}>+ Валюта</button>
     </div>
   )
 }
@@ -140,27 +148,32 @@ function UserFormHeader(props) {
 function UserValueRow(props) {
   var userValueId = props.userValueId
   var {currencies, userValues, curCurrencyId} = props.calc
-  var {currencyId, amount, rate} = userValues[userValueId]
+  var {currencyId, amount, rate, color} = userValues[userValueId]
   var {sign, price} = currencies[currencyId]
   var {price: curPrice} = currencies[curCurrencyId]
-  var {setUserValue} = props.funs
+  var {setUserValue, openEditUserValue} = props.funs
+
   return (
     <Row3>
       <div>
-        <span className='chd-user-value-row__sign'>{sign}</span>
+        <span className='chd-user-value-row__sign'
+              style={{background: color}}
+              onClick={() => openEditUserValue(userValueId)}>
+          {sign}
+        </span>
         <span>
-          <input className='chd-user-value-row__amount-input'
-                 type='text' value={amount}
+          <InputText className='chd-user-value-row__amount-input'
+                 value={formatNumber(amount)}
                  onChange={({target: {value}}) =>
                     setUserValue({id: userValueId, amount: value.trim()})}/>
         </span>
       </div>
       <div className='chd-user-value-row__cell'>
-        {Math.round(amount * price / curPrice)}
+        {formatNumber(Math.round(amount * price / curPrice))}
       </div>
       <div className='chd-user-value-row__cell'>
-        <input className='chd-user-value-row__rate-input'
-               type='text' value={rate || 0}
+        <InputText className='chd-user-value-row__rate-input'
+               value={formatNumber(rate)}
                onChange={({target: {value}}) =>
                   setUserValue({id: userValueId, rate: value.trim()})}/>
       </div>
@@ -184,5 +197,76 @@ function UserChart () {
   )
 }
 
+function UserValueDialog (props) {
+  var {setUserValueColor, setUserValueCurrencyId, setUserValue,
+       addUserValue, closePopups} = props.funs
+  var {curCurrencyId, currencies, currencyIds} = props.calc
+  var {userValueColor, userValueCurrencyId, isAddingUserValue, editingUserValueId} = props.ui
+  var className = classNames('chd-user-value-dialog',
+    {'chd-user-value-dialog_visible': isAddingUserValue || editingUserValueId})
 
-module.exports.Page = Page
+  return (
+    <div className={className}>
+      <div className='chd-user-value-dialog__panel'>
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          var {target: {elements}} = e
+          var value = {
+            currencyId: elements.currencyId.value,
+            color: userValueColor
+          }
+          closePopups()
+          if (editingUserValueId) {
+            value.id = editingUserValueId
+            setUserValue(value)
+          } else {
+            addUserValue(value)
+          }
+        }}>
+          <div className='chd-user-value-dialog__row'>
+            <InputSelect value={userValueCurrencyId || curCurrencyId}
+                         name='currencyId'
+                         onChange={({target: {value}}) => setUserValueCurrencyId(value)}>
+              {mapsep(currencyIds, currencies,
+                ({sign}, id) => <option value={id} key={id}>{sign}</option>
+              )}
+            </InputSelect>
+          </div>
+          <div className='chd-user-value-dialog__row'>
+            <span className='chd-user-value-dialog__row-span'>
+              <ColorPicker color={userValueColor}/>
+            </span>
+            <span className='chd-user-value-dialog__row-span'>
+              <InputText value={userValueColor} name='color'
+                style={{width:'100px'}}
+                onChange={({target: {value}}) => setUserValueColor(value)}/>
+            </span>
+          </div>
+          <div className='chd-user-value-dialog__row'>
+            <span className='chd-user-value-dialog__row-span'>
+              <ColorPicker color='#b22' setColor={setUserValueColor}/>
+            </span>
+            <span className='chd-user-value-dialog__row-span'>
+              <ColorPicker color='#bb2' setColor={setUserValueColor}/>
+            </span>
+            <span className='chd-user-value-dialog__row-span'>
+              <ColorPicker color='#2b2' setColor={setUserValueColor}/>
+            </span>
+            <span className='chd-user-value-dialog__row-span'>
+              <ColorPicker color='#2bb' setColor={setUserValueColor}/>
+            </span>
+            <span className='chd-user-value-dialog__row-span'>
+              <ColorPicker color='#22b' setColor={setUserValueColor}/>
+            </span>
+            <span className='chd-user-value-dialog__row-span'>
+              <ColorPicker color='#b2b' setColor={setUserValueColor}/>
+            </span>
+          </div>
+          <input type='submit' value={'Сохранить'}/>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+module.exports = Page

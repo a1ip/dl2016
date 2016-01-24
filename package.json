@@ -8,6 +8,7 @@
     "clean": "npm run rm-out",
     "build-debug": "npm run js-build-debug && npm run sass-build",
     "build": "npm run js-build && npm run sass-build",
+    "start": "cd static && python -m SimpleHTTPServer $DEV_SERVER_PORT 2> /dev/null",
 
     "js-build-debug": "npm run mk-out && browserify -d src/app.js > static/out/datalaboratory-ru-2016-01.js",
     "js-build": "npm run mk-out && browserify src/app.js > static/out/datalaboratory-ru-2016-01.js",
@@ -107,8 +108,8 @@
     "redux": "3.0.5",
     "redux-thunk": "1.0.3",
     "react-redux": "4.0.6",
-    "@evoja/ns-plain": "0.0.0-s1",
-    "@evoja/redux-actions": "0.0.0-s1",
-    "@evoja/redux-reducers": "0.0.0"
+    "@evoja/ns-plain": "0.0.0",
+    "@evoja/redux-actions": "0.0.1",
+    "@evoja/redux-reducers": "0.0.1"
   }
 }

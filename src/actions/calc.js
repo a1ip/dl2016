@@ -2,7 +2,7 @@
 var {getActionConstRegistrator, getSimpleActionsRegistrator} = require('@evoja/redux-actions')
 var {createComplexEvReducer, wrapEvReducer} = require('@evoja/redux-reducers')
 var {assign} = require('@evoja/ns-plain');
-var {assignExisting} = require('../tools.js');
+var {assignExisting, removeSpaces} = require('../tools.js');
 var {act: uidAct} = require('./uid.js');
 
 var act = {};
@@ -26,7 +26,7 @@ registerSimpleActions({
 
 act.addUserValue = (userValue) => function(dispatch, getState) {
   return dispatch(uidAct.inc())
-    .then(id => dispatch(act.simpleAddUserValue(assign('id', userValue, id))))
+    .then(id => dispatch(act.simpleAddUserValue({...userValue, id})))
 }
 
 
@@ -39,21 +39,31 @@ var defaultState = {
   userValues: {}
 }
 
+
+
+function cleanNumber(value) {
+  value = removeSpaces(value)
+  return isNaN(parseInt(value, 10)) ? 0 : parseInt(value, 10)
+}
+
+function cleanAmount(amount) {
+  return amount === '' ? amount : cleanNumber(amount)
+}
 var reducer = createComplexEvReducer(defaultState, [
   ['', act.SET_CUR_CURRENCY, (state, {curCurrencyId}) => {
-    console.log('set cur currency', curCurrencyId)
     return state.currencies[curCurrencyId]
-      ? assign('curCurrencyId', state, curCurrencyId)
-      : state;
+      ? {...state, curCurrencyId}
+      : state
   }],
 
-  ['withDeposits', act.SET_WITH_DEPOSITS, (_, {withDeposits}) => {
-        console.log('set with deposits', withDeposits)
-        return withDeposits
-    }],
+  ['withDeposits', act.SET_WITH_DEPOSITS, (_, {withDeposits}) => withDeposits],
 
   ['userValues.{userValue.id}', act.SET_USER_VALUE, (userValue, {userValue: newUserValue}) => {
-    return assignExisting(userValue, newUserValue)
+    console.log('ololo', userValue)
+    userValue = assignExisting(userValue, newUserValue)
+    userValue.amount = cleanAmount(userValue.amount)
+    userValue.rate = cleanAmount(userValue.rate)
+    return userValue
   }],
 
   ['', act.DELETE_USER_VALUE, (state, {userValueId}) => {
@@ -68,7 +78,8 @@ var reducer = createComplexEvReducer(defaultState, [
       }
     }
     state = assign('userValues.' + userValueId, state, undefined)
-    return assign('userValueIds', state, newUserValueIds)
+    state.userValueIds = newUserValueIds
+    return state;
   }],
 
   ['', act.ADD_USER_VALUE, (state, {userValue}) => {
@@ -76,7 +87,8 @@ var reducer = createComplexEvReducer(defaultState, [
     if (state.userValues[userValueId]) {
       return state;
     }
-    state = assign('userValues.' + userValueId, state, userValue)
+    var amount = cleanAmount(userValue.amount)
+    state = assign('userValues.' + userValueId, state, {...userValue, amount})
     return assign('userValueIds.' + state.userValueIds.length, state, userValueId)
   }],
 
