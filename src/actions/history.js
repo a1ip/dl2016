@@ -24,41 +24,70 @@ registerSimpleActions({
 });
 
 var defaultState = {
-  history: {
-    usd: [{
+  history: [{
       date: 1,
-      value: 10,
+      usd: 10,
+      eur: 15,
+      rub: 1
     }, {
       date: 2,
-      value: 20,
+      usd: 20,
+      eur: 30,
+      rub: 1
     }, {
       date: 3,
-      value: 30,
+      usd: 30,
+      eur: 45,
+      rub: 1
     }, {
       date: 4,
-      value: 43,
+      usd: 40,
+      eur: 60,
+      rub: 1
     }, {
       date: 5,
-      value: 43,
+      usd: 50,
+      eur: 75,
+      rub: 1
     }, {
       date: 6,
-      value: 42,
+      usd: 60,
+      eur: 90,
+      rub: 1
     }, {
       date: 7,
-      value: 32,
+      usd: 70,
+      eur: 105,
+      rub: 1
     }, {
       date: 8,
-      value: 43,
-    }]
-  },
-  current: {
-    rub: 1,
-    usd: 80,
-  },
-  forecast: {
-    rub: [1, 1, 1, 1],
-    usd: [70, 80, 100, 80],
-  }
+      usd: 80,
+      eur: 120,
+      rub: 1
+    }
+  ],
+  forecast: [{
+      date: 0,
+      rub: 1,
+      usd: 70,
+      eur: 10
+    }, {
+      date: 1,
+      rub: 1,
+      usd: 80,
+      eur: 20
+    }, {
+      date: 2,
+      rub: 1,
+      usd: 100,
+      eur: 30
+    }, {
+      date: 3,
+      rub: 1,
+      usd: 80,
+      eur: 40
+    }
+  ]
 }
 
 var reducer = createComplexEvReducer(defaultState, [

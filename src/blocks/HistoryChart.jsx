@@ -25,47 +25,139 @@ var {TitleSmall, SubTitleSmall} = require('./dribs.jsx')
  * currencies
  */
 var HistoryChart = reactPure(function HistoryChart (props) {
-  console.log('b', props)
-  var {history, current, forecast, curCurrencyId, currencies} = props
-  var data = history[curCurrencyId];
+  return (
+    <div className='chd-history-chart'>
+      <div className='chd-history-chart__title'>
+        <TitleSmall>История и прогноз курсов</TitleSmall>
+        <SubTitleSmall>Перетащите точку, чтобы изменить прогноз</SubTitleSmall>
+      </div>
+      <div className='chd-history-chart__chart'>
+        <TheChart {...props}/>
+      </div>
+      <div className='chd-history-chart__x'>
+        год назад, сегодня, через год
+      </div>
+    </div>
+  )
+})
 
-  if (!data) {
-    return <div className='chd-history-chart'/>
-  }
-  console.log('history chart', data)
+/**
+ * @param  {function} op) (somePrice, curPrice) => koeff
+ * @return {function}     (currencies, curCurrencyId, currencyId) => (value) => number
+ */
+var koeffy = (op) => (prices, curCurrencyId, currencyId) => {
+  var koeff = op(prices[currencyId], prices[curCurrencyId])
+  return (value) => isNaN(value * koeff) ? 0 : value * koeff
+}
+var absToCur = koeffy((somePrice, curPrice) => somePrice / curPrice)
+var curToAbs = koeffy((somePrice, curPrice) => curPrice / absPrice)
 
-  var parseDate = d3.time.format('%d-%b-%y').parse
+var isGoodForChart = (currencies, curCurrencyId, currencyId) => {
+  return currencyId != curCurrencyId && currencies[currencyId]
+}
 
-  var margin = {top: 0, right: 0, bottom: 20, left: 30}
-  var width = 248 - margin.left - margin.right
-  var height = 190 - margin.top - margin.bottom
-  var x = d3.scale.linear()
-    .range([0, width/2])
-    .domain(d3.extent(data, d => d.date))
-  var y = d3.scale.linear()
-    .range([height, 0])
-    .domain(d3.extent(data, d => d.value))
 
-  // var xAxis = d3.svg.axis().scale(x).orient('bottom')
-  // var yAxis = d3.svg.axis().scale(y).orient('left')
-  var line = d3.svg.line()
-    .x(d => x(d.date))
-    .y(d => y(d.value))
+function getHistarrs(history, currencies, curCurrencyId) {
+  return Object.keys(currencies)
+    .map(currencyId => isGoodForChart(currencies, curCurrencyId, currencyId)
+      && {
+        currencyId,
+        data: history.map(function(d){
+          return {
+            date: d.date,
+            value: absToCur(d, curCurrencyId, currencyId)(1)
+          }
+        })
+      })
+    .filter(d => !!d)
+    .filter(d => d.data.some(x => x.value))
+}
+
+
+
+function getExtentOfAll(histarrs, getter) {
+  var min, max;
+  histarrs.forEach(function({data}) {
+    var ext = d3.extent(data, getter)
+    min = !isNaN(min) && Math.min(min, ext[0]) || ext[0]
+    max = !isNaN(max) && Math.max(max, ext[1]) || ext[1]
+  })
+  return [min, max]
+}
+
+var TheChart = reactPure(function TheChart(props) {
+  var {history, forecast, curCurrencyId, currencies} = props
+  // if (!data) {
+  //   return <div className='chd-history-chart'/>
+  // }
+  console.log('xxx')
+
+
+  var margin = {top: 5, right: 5, bottom: 20, left: 30}
+  var width = 253 - margin.left - margin.right
+  var height = 195 - margin.top - margin.bottom
 
   var el = ReactFauxDOM.createElement('svg')
-  var svg = d3.select(el)
+  var graphArea = d3.select(el)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.left + margin.right)
     .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
-  svg.append('path')
-    .datum(data)
-    .attr('class', 'chd-history-chart__line')
-    .attr('d', line)
-    // .attr('fill', 'none')
-    // .attr('stroke-width', '5')
-    .attr('stroke', 'red')
+
+
+
+  // var xAxis = d3.svg.axis().scale(x).orient('bottom')
+  // var yAxis = d3.svg.axis().scale(y).orient('left')
+  
+  var histarrs = getHistarrs(history, currencies, curCurrencyId)
+
+  var histX = d3.scale.linear()
+    .range([0, width/2])
+    .domain(getExtentOfAll(histarrs, d => d.date))
+  var histY = d3.scale.linear()
+    .range([height * .8, height * .2])
+    .domain(getExtentOfAll(histarrs, d => d.value))
+
+  var line = d3.svg.line()
+    .x(d => histX(d.date))
+    .y(d => histY(d.value))
+
+
+  histarrs.forEach(function({currencyId, data}) {
+    graphArea
+      .append('path')
+      .datum(data)
+      .attr('class', 'chd-history-chart__line')
+      .attr('d', line)
+      .attr('stroke', currencies[currencyId].color)
+  })
+
+  var forecarrs = getHistarrs(forecast, currencies, curCurrencyId)
+  var forecX = d3.scale.linear()
+    .range([width * 5 / 8, width])
+    .domain(getExtentOfAll(forecarrs, d => d.date))
+  var forecY = histY
+
+  var CIRCLE_CLASS = 'chd-history-chart__forecast-circle'
+  var getCircleClass = (currencyId) => CIRCLE_CLASS + '_' + currencyId
+
+  forecarrs.forEach(function({currencyId, data}) {
+    var color = currencies[currencyId].color
+    var classes = {}
+    classes[CIRCLE_CLASS] = true
+    classes[getCircleClass(currencyId)] = true
+    graphArea
+      .selectAll('circle.' + getCircleClass(currencyId))
+        .data(data)
+      .enter()
+        .append("circle")
+        .classed(classes)
+        .attr('cx', d => forecX(d.date))
+        .attr('cy', d => forecY(d.value))
+        .style('fill', color)
+  })
+
     // .append('g')
     //   .attr('transform', 'rotate(-90)')
     //   .attr('y', 6)
@@ -77,18 +169,7 @@ var HistoryChart = reactPure(function HistoryChart (props) {
   // // Even perform CSS selections.
   // el.style.setProperty('color', 'red')
   // el.setAttribute('class', 'box')
-  return (
-    <div className='chd-history-chart'>
-      <div className='chd-history-chart__title'>
-        <TitleSmall>История и прогноз курсов</TitleSmall>
-        <SubTitleSmall>Перетащите точку, чтобы изменить прогноз</SubTitleSmall>
-      </div>
-      <div className='chd-history-chart__chart'>{el.toReact()}</div>
-      <div className='chd-history-chart__x'>
-        год назад, сегодня, через год
-      </div>
-    </div>
-  )
+  return el.toReact()
 })
 
 
