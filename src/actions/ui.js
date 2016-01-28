@@ -12,7 +12,8 @@ var registerSimpleActions = getSimpleActionsRegistrator(act);
 
 registerActionConst(['OPEN_ADD_USER_VALUE', 'OPEN_EDIT_USER_VALUE',
   'SET_USER_VALUE_COLOR', 'SET_USER_VALUE_CURRENCY_ID',
-  'CLOSE_POPUPS'
+  'CLOSE_POPUPS',
+  'START_DRAG', 'STOP_DRAG'
 ]);
 
 registerSimpleActions({
@@ -21,6 +22,8 @@ registerSimpleActions({
   setUserValueCurrencyId: [act.SET_USER_VALUE_CURRENCY_ID, 'currencyId'],
   setUserValueColor: [act.SET_USER_VALUE_COLOR, 'userValueColor'],
   closePopups: [act.CLOSE_POPUPS],
+  startDrag: [act.START_DRAG, 'currencyId', 'pointNumber'],
+  stopDrag: act.STOP_DRAG,
 });
 
 
@@ -29,17 +32,20 @@ var defaultState = {
   editingUserValueId: undefined,
   userValueColor: '#d22',
   userValueCurrencyId: undefined,
+  draggingCurrency: undefined,
 }
 
 var reducerLocal = createComplexEvReducer(defaultState, [
   ['', act.OPEN_ADD_USER_VALUE, () => {
     return {...defaultState, isAddingUserValue: true}
   }],
-
   ['userValueColor', act.SET_USER_VALUE_COLOR, (_, {userValueColor}) => userValueColor],
   ['userValueCurrencyId', act.SET_USER_VALUE_CURRENCY_ID, (_, {currencyId}) => currencyId],
-
   ['', act.CLOSE_POPUPS, () => defaultState],
+  ['draggingCurrency', act.START_DRAG, (_, {currencyId, pointNumber}) => {
+      return {currencyId, pointNumber}
+    }],
+  ['draggingCurrency', act.STOP_DRAG, () => undefined],
 ]);
 
 var reducerGlobal = createComplexEvReducer([

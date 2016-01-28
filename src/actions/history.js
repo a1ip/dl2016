@@ -91,6 +91,8 @@ var defaultState = {
 }
 
 var reducer = createComplexEvReducer(defaultState, [
+  ['forecast.{pointNumber}.{currencyId}', act.SET_FORECAST_POINT,
+    (_, {price}) => price],
   // ['', act.OPEN_ADD_USER_VALUE, () => {
   //   return {...defaultState, isAddingUserValue: true}
   // }],

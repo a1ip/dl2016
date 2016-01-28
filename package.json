@@ -50,14 +50,13 @@
           "syntax-object-rest-spread",
           "transform-object-rest-spread"
         ]
-      }],
-      ["require-globify"]
+      }]
     ]
   },
 
   "//devDeps descriptions": {
     "browserify": "JS files transformation",
-    "require-globify": "Allows dynamic requires in browserify",
+    "require-globify": "Must be deleted after update on @evoja/...@0.0.2",
     "watchify": "Watches JS files",
     "browserify-hmr": "Allows hot reloading of reducers",
     "node-sass": "Build CSS",

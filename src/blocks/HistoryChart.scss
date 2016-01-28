@@ -17,6 +17,16 @@
     border: solid 1px #eee;
 }
 
+
+.chd-history-chart__chart-graph-area {
+    // pointer-events: all;
+    fill: $bg_color;
+    cursor: default;
+}
+.chd-history-chart__chart-graph-area_dragging {
+    cursor: pointer;
+}
+
 .chd-history-chart__line {
     fill: none;
     stroke-width: 2px;
@@ -24,4 +34,5 @@
 
 .chd-history-chart__forecast-circle {
     r: 3px;
+    cursor: pointer;
 }

@@ -46,7 +46,11 @@ var UserValueDialog = require('./UserValueDialog.jsx')
  */
 
 var Page = reactPure(function Page (props) {
-  var {calc: {curCurrencyId, currencies}, funs} = props
+  var {
+    calc: {curCurrencyId, currencies},
+    ui: {draggingCurrency},
+  } = props
+
   return (
     <div className='chd-page'>
       <div>
@@ -67,8 +71,9 @@ var Page = reactPure(function Page (props) {
         <span className='chd-page__c1 chd-page__c12'>
           <HistoryChart {...props.history}
                         curCurrencyId={curCurrencyId}
+                        draggingCurrency={draggingCurrency}
                         currencies={currencies}
-                        funs={funs}/>
+                        funs={props.funs}/>
         </span>
         <span className='chd-page__c1 chd-page__c13'>
           <UserChart {...props}/>

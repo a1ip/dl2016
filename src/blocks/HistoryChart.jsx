@@ -45,12 +45,12 @@ var HistoryChart = reactPure(function HistoryChart (props) {
  * @param  {function} op) (somePrice, curPrice) => koeff
  * @return {function}     (currencies, curCurrencyId, currencyId) => (value) => number
  */
-var koeffy = (op) => (prices, curCurrencyId, currencyId) => {
-  var koeff = op(prices[currencyId], prices[curCurrencyId])
+var koeffy = (op) => (prices, curCurrencyId) => {
+  var koeff = op(prices[curCurrencyId])
   return (value) => isNaN(value * koeff) ? 0 : value * koeff
 }
-var absToCur = koeffy((somePrice, curPrice) => somePrice / curPrice)
-var curToAbs = koeffy((somePrice, curPrice) => curPrice / absPrice)
+var absToCur = koeffy(curPrice => 1 / curPrice)
+var curToAbs = koeffy(curPrice => curPrice)
 
 var isGoodForChart = (currencies, curCurrencyId, currencyId) => {
   return currencyId != curCurrencyId && currencies[currencyId]
@@ -65,7 +65,7 @@ function getHistarrs(history, currencies, curCurrencyId) {
         data: history.map(function(d){
           return {
             date: d.date,
-            value: absToCur(d, curCurrencyId, currencyId)(1)
+            value: absToCur(d, curCurrencyId)(d[currencyId])
           }
         })
       })
@@ -85,8 +85,14 @@ function getExtentOfAll(histarrs, getter) {
   return [min, max]
 }
 
+
+
+
+
+
 var TheChart = reactPure(function TheChart(props) {
-  var {history, forecast, curCurrencyId, currencies} = props
+  var {history, forecast, curCurrencyId, currencies, draggingCurrency} = props
+  var {startDrag, stopDrag, setForecastPoint} = props.funs
   // if (!data) {
   //   return <div className='chd-history-chart'/>
   // }
@@ -100,9 +106,19 @@ var TheChart = reactPure(function TheChart(props) {
   var el = ReactFauxDOM.createElement('svg')
   var graphArea = d3.select(el)
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
     .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+  var movementRect = graphArea.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', width)
+      .attr('height', height)
+      .classed({
+        'chd-history-chart__chart-graph-area': true,
+        'chd-history-chart__chart-graph-area_dragging': !!draggingCurrency
+      })
 
 
 
@@ -142,6 +158,17 @@ var TheChart = reactPure(function TheChart(props) {
   var CIRCLE_CLASS = 'chd-history-chart__forecast-circle'
   var getCircleClass = (currencyId) => CIRCLE_CLASS + '_' + currencyId
 
+  var onMove = () => {
+    if (!draggingCurrency) {
+      return
+    }
+    d3.event.preventDefault()
+    var {currencyId, pointNumber} = draggingCurrency
+    var curValue = histY.invert(d3.event.offsetY - margin.top)
+    var absValue = curToAbs(forecast[pointNumber], curCurrencyId)(curValue)
+    setForecastPoint(currencyId, pointNumber, absValue)
+  }
+
   forecarrs.forEach(function({currencyId, data}) {
     var color = currencies[currencyId].color
     var classes = {}
@@ -156,7 +183,21 @@ var TheChart = reactPure(function TheChart(props) {
         .attr('cx', d => forecX(d.date))
         .attr('cy', d => forecY(d.value))
         .style('fill', color)
+        .on('mousedown', (d) => {
+            d3.event.preventDefault()
+
+            var oldonmouseup = document.onmouseup
+            document.onmouseup = function() {
+              stopDrag()
+              document.onmouseup = oldonmouseup
+            }
+
+            startDrag(currencyId, d.date)
+        })
+        .on('mouseup', stopDrag)
+        .on('mousemove', onMove)
   })
+  movementRect.on('mousemove', onMove)
 
     // .append('g')
     //   .attr('transform', 'rotate(-90)')
