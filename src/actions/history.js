@@ -37,14 +37,6 @@ var defaultState = {
     //     jpy: 1.2,
     //     rub: 0.03
     //   },
-    // '2016-01-10': {
-    //     usd: 0.85,
-    //     jpy: 0.9,
-    //   },
-    // '2016-01-20': {
-    //   usd: 0.9,
-    //   rub: 0.02
-    // }
   },
   prices: {
     // usd: 0.9,
@@ -52,26 +44,11 @@ var defaultState = {
     // jpy: 12
   },
   forecast: [{
-      usd: 0.5,
-      jpy: 1.2,
-      rub: 0.025,
-      eur: 1,
-    }, {
-      rub: 0.025,
-      usd: 1,
-      jpy: 1,
-      eru: 1,
-    }, {
-      rub: 0.02,
-      usd: 0.5,
-      jpy: 1,
-      eur: 1,
-    }, {
-      rub: 0.02,
-      usd: 1,
-      jpy: 1,
-      eur: 1,
-    }
+      // usd: 0.5,
+      // jpy: 1.2,
+      // rub: 0.025,
+      // eur: 1,
+    }, {}, {}, {}
   ]
 }
 
@@ -101,8 +78,17 @@ var globalReducer = createComplexEvReducer([
           history[date][baseCurrencyId] = 1
         }
       })
+
+      var forecast = state.forecast.map(d => {
+        d = {...d}
+        d[currencyId] = prices[currencyId]
+        if (d[baseCurrencyId] !== 1) {
+          d[baseCurrencyId] = 1
+        }
+        return d
+      })
       globalState = {...globalState}
-      globalState[STATE_NS] = {...state, prices, history}
+      globalState[STATE_NS] = {...state, prices, history, forecast}
       return globalState
     }]
   ])
