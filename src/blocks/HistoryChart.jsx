@@ -3,7 +3,7 @@ var React = require('react')
 var d3 = require('d3')
 var classNames = require('classnames')
 var ReactFauxDOM = require('react-faux-dom')
-var {reactPure} = require('../tools.js')
+var {reactPure, getYearAgoDate, getForecastDate} = require('../tools/tools.js')
 var {TitleSmall, SubTitleSmall} = require('./dribs.jsx')
 
 
@@ -46,7 +46,7 @@ var HistoryChart = reactPure(function HistoryChart (props) {
  * @return {function}     (currencies, curCurrencyId, currencyId) => (value) => number
  */
 var koeffy = (op) => (prices, curCurrencyId) => {
-  var koeff = op(prices[curCurrencyId])
+  var koeff = op(prices[curCurrencyId] || 1)
   return (value) => isNaN(value * koeff) ? 0 : value * koeff
 }
 var absToCur = koeffy(curPrice => 1 / curPrice)
@@ -56,18 +56,23 @@ var isGoodForChart = (currencies, curCurrencyId, currencyId) => {
   return currencyId != curCurrencyId && currencies[currencyId]
 }
 
+function dateToNum(date) {
+  return new Date(date).getTime()
+}
 
-function getHistarrs(history, currencies, curCurrencyId) {
+
+function getHistarrs(history, currencies, curCurrencyId, keyToNum) {
   return Object.keys(currencies)
     .map(currencyId => isGoodForChart(currencies, curCurrencyId, currencyId)
       && {
         currencyId,
-        data: history.map(function(d){
-          return {
-            date: d.date,
-            value: absToCur(d, curCurrencyId)(d[currencyId])
+        data: Object.keys(history).map(function(date){
+          var value = history[date] && history[date][currencyId]
+          return value && {
+            date: keyToNum(date),
+            value: absToCur(history[date], curCurrencyId)(value)
           }
-        })
+        }).filter(d => !!d).sort((a, b) => (a.date - b.date))
       })
     .filter(d => !!d)
     .filter(d => d.data.some(x => x.value))
@@ -85,19 +90,27 @@ function getExtentOfAll(histarrs, getter) {
   return [min, max]
 }
 
+function formatDate(date) {
+  return date.toISOString().substring(0, 10)
+}
 
-
-
+function isCurrencyInteresting(currencyId, userValues) {
+  for(var k in userValues) {
+    if (userValues[k].currencyId == currencyId && !!userValues[k].amount) {
+      return true
+    }
+  }
+  return false
+}
 
 
 var TheChart = reactPure(function TheChart(props) {
-  var {history, forecast, curCurrencyId, currencies, draggingCurrency} = props
+  var {history, forecast, todayDate, 
+    curCurrencyId, currencies, draggingCurrency, userValues} = props
   var {startDrag, stopDrag, setForecastPoint} = props.funs
   // if (!data) {
   //   return <div className='chd-history-chart'/>
   // }
-  console.log('xxx')
-
 
   var margin = {top: 5, right: 5, bottom: 20, left: 30}
   var width = 253 - margin.left - margin.right
@@ -125,14 +138,18 @@ var TheChart = reactPure(function TheChart(props) {
 
   // var xAxis = d3.svg.axis().scale(x).orient('bottom')
   // var yAxis = d3.svg.axis().scale(y).orient('left')
-  
-  var histarrs = getHistarrs(history, currencies, curCurrencyId)
+  history = {...history}
+  forecast.forEach((d, i) => {
+    history[formatDate(getForecastDate(todayDate, i))] = d
+  })
+  var histarrs = getHistarrs(history, currencies, curCurrencyId, dateToNum)
+    .filter(({currencyId}) => isCurrencyInteresting(currencyId, userValues))
 
   var histX = d3.scale.linear()
-    .range([0, width/2])
-    .domain(getExtentOfAll(histarrs, d => d.date))
+    .range([0, width])
+    .domain([getYearAgoDate(todayDate), getForecastDate(todayDate, forecast.length - 1)])
   var histY = d3.scale.linear()
-    .range([height * .8, height * .2])
+    .range([height * .9, height * .1])
     .domain(getExtentOfAll(histarrs, d => d.value))
 
   var line = d3.svg.line()
@@ -149,10 +166,13 @@ var TheChart = reactPure(function TheChart(props) {
       .attr('stroke', currencies[currencyId].color)
   })
 
-  var forecarrs = getHistarrs(forecast, currencies, curCurrencyId)
+  var forecastObj = {}
+  forecast.forEach((d, i) => forecastObj[i] = d)
+  var forecarrs = getHistarrs(forecastObj, currencies, curCurrencyId, x => Number(x))
+    .filter(({currencyId}) => isCurrencyInteresting(currencyId, userValues))
   var forecX = d3.scale.linear()
     .range([width * 5 / 8, width])
-    .domain(getExtentOfAll(forecarrs, d => d.date))
+    .domain([0, forecast.length - 1])
   var forecY = histY
 
   var CIRCLE_CLASS = 'chd-history-chart__forecast-circle'

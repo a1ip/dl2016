@@ -2,7 +2,7 @@
 var {getActionConstRegistrator, getSimpleActionsRegistrator} = require('@evoja/redux-actions')
 var {createComplexEvReducer, wrapEvReducer, chainReducers} = require('@evoja/redux-reducers')
 var {assign} = require('@evoja/ns-plain');
-var {assignExisting} = require('../tools.js');
+var {assignExisting} = require('../tools/tools.js');
 var {act: uidAct} = require('./uid.js');
 
 var act = {};

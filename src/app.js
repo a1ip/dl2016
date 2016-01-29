@@ -6,6 +6,8 @@ var Redux = require('redux')
 var thunk = require('redux-thunk')
 var {Provider, connect} = require('react-redux')
 var {chainReducers} = require('@evoja/redux-reducers')
+var quandlApi = require('./tools/quandl-api.js')
+var config = require('./config.js')
 var Page = require('./blocks/Page.jsx')
 import DevTools from './DevTools.jsx'
 
@@ -15,17 +17,14 @@ var createStore = Redux.compose(
   DevTools.instrument()
 )(Redux.createStore);
 
-
+var reducerSources = ['uid', 'calc', 'ui', 'history', 'downloading']
 function getReducer() {
-  var uid = require('./actions/uid.js')
-  var calc = require('./actions/calc.js')
-  var ui = require('./actions/ui.js')
-  var history = require('./actions/history.js')
   return chainReducers([
-      uid.reducer,
-      calc.reducer,
-      ui.reducer,
-      history.reducer
+      require('./actions/uid.js').reducer,
+      require('./actions/calc.js').reducer,
+      require('./actions/ui.js').reducer,
+      require('./actions/history.js').reducer,
+      require('./actions/downloading.js').reducer,
     ])
 }
 
@@ -40,47 +39,21 @@ if (module.hot) {
   module.hot.accept('./actions/uid.js', refreshStore)
   module.hot.accept('./actions/calc.js', refreshStore)
   module.hot.accept('./actions/ui.js', refreshStore)
+  module.hot.accept('./actions/history.js', refreshStore)
+  module.hot.accept('./actions/downloading.js', refreshStore)
 }
 
 var origDispatch = store.dispatch
 store.dispatch = function() {
   var r = origDispatch.apply(store, arguments)
   if (r instanceof Promise) {
-    r.then(null, function(e) {console.error(e)})
+    r.then(null, e => console.error(e.stackTrace))
   }
   return r
 }
+
 var calc = require('./actions/calc.js')
-store.dispatch(calc.act.setCurrencies({
-    usd: {
-      id: 'usd',
-      sign: '$',
-      displayName: 'доллар США',
-      price: 79.95,
-      color: '#22b'
-    },
-    rub: {
-      id: 'rub',
-      sign: '₽',
-      displayName: 'рубль',
-      price: 1,
-      color: '#b22'
-    },
-    eur: {
-      id: 'eur',
-      sign: 'E',
-      displayName: 'евро',
-      price: 79.95,
-      color: '#2b2'
-    },
-    yen: {
-      id: 'yen',
-      sign: 'Y',
-      displayName: 'йена',
-      price: 79.95,
-      color: '#b2b'
-    }
-  }))
+store.dispatch(calc.act.setCurrencies(config))
 store.dispatch(calc.act.addUserValue({
     currencyId: 'rub',
     amount: 100000,
@@ -96,11 +69,13 @@ store.dispatch(calc.act.addUserValue({
     amount: 1000,
     rate: 2,
   }))
-store.dispatch(calc.act.addUserValue({
-    currencyId: 'yen',
-    amount: 1000,
-    rate: 2,
-  }))
+// store.dispatch(calc.act.addUserValue({
+//     currencyId: 'jpy',
+//     amount: 1000,
+//     rate: 2,
+//   }))
+var downloading = require('./actions/downloading.js')
+store.dispatch(downloading.act.download(quandlApi))
 
 
 
@@ -108,7 +83,7 @@ function mapDispatchToProps(dispatch, {componentId}) {
   var sources = [
     './actions/calc.js',
     './actions/ui.js',
-    './actions/history.js'
+    './actions/history.js',
   ]
   var funs = {}
   sources.forEach((source) => {

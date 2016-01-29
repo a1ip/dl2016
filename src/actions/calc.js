@@ -2,7 +2,7 @@
 var {getActionConstRegistrator, getSimpleActionsRegistrator} = require('@evoja/redux-actions')
 var {createComplexEvReducer, wrapEvReducer} = require('@evoja/redux-reducers')
 var {assign} = require('@evoja/ns-plain');
-var {assignExisting, removeSpaces} = require('../tools.js');
+var {assignExisting, removeSpaces} = require('../tools/tools.js');
 var {act: uidAct} = require('./uid.js');
 
 var act = {};
@@ -21,7 +21,7 @@ registerSimpleActions({
   setUserValue: [act.SET_USER_VALUE, 'userValue'],
   deleteUserValue: [act.DELETE_USER_VALUE, 'userValueId'],
   simpleAddUserValue: [act.ADD_USER_VALUE, 'userValue'],
-  setCurrencies: [act.SET_CURRENCIES, 'currencies'],
+  setCurrencies: [act.SET_CURRENCIES, 'config'],
 });
 
 act.addUserValue = (userValue) => function(dispatch, getState) {
@@ -91,15 +91,24 @@ var reducer = createComplexEvReducer(defaultState, [
     return assign('userValueIds.' + state.userValueIds.length, state, userValueId)
   }],
 
-  ['', act.SET_CURRENCIES, (state, {currencies}) => {
-    var currencyIds = Object.keys(currencies)
-    state = assign('currencies', state, currencies)
-    state = assign('currencyIds', state, currencyIds)
-    return assign('curCurrencyId', state, currencyIds[0])
+  ['', act.SET_CURRENCIES, (state, {config}) => {
+    var currencies = {}
+    var currencyIds = []
+    config.forEach(currency => {
+      currencies[currency.id] = currency
+      currencyIds.push(currency.id)
+    })
+    return {
+      ...state,
+      currencies,
+      currencyIds,
+      curCurrencyId: currencyIds[0]
+    }
   }]
 ]);
 
 module.exports = {
+  STATE_NS,
   act,
   reducer: wrapEvReducer(STATE_NS, reducer)
 };

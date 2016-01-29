@@ -1,7 +1,7 @@
 'use strict'
 var React = require('react')
 var classNames = require('classnames')
-var {mapsep, formatNumber, reactPure} = require('../tools.js')
+var {mapsep, formatNumber, reactPure} = require('../tools/tools.js')
 var {InputText, InputSelect} = require('./dribs.jsx')
 var UserValues = require('./UserValues.jsx')
 var HistoryChart = require('./HistoryChart.jsx')
@@ -47,7 +47,7 @@ var UserValueDialog = require('./UserValueDialog.jsx')
 
 var Page = reactPure(function Page (props) {
   var {
-    calc: {curCurrencyId, currencies},
+    calc: {curCurrencyId, currencies, userValues},
     ui: {draggingCurrency},
   } = props
 
@@ -73,6 +73,7 @@ var Page = reactPure(function Page (props) {
                         curCurrencyId={curCurrencyId}
                         draggingCurrency={draggingCurrency}
                         currencies={currencies}
+                        userValues={userValues}
                         funs={props.funs}/>
         </span>
         <span className='chd-page__c1 chd-page__c13'>

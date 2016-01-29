@@ -1,7 +1,7 @@
 'use strict'
 var React = require('react')
 var classNames = require('classnames')
-var {mapsep, formatNumber, reactPure} = require('../tools.js')
+var {mapsep, formatNumber, reactPure} = require('../tools/tools.js')
 var {InputText, InputSelect, TitleSmall} = require('./dribs.jsx')
 
 var UserValues = reactPure(function UserValues (props) {

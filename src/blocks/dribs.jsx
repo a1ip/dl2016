@@ -1,6 +1,6 @@
 'use strict'
 var React = require('react')
-var {reactPure} = require('../tools.js')
+var {reactPure} = require('../tools/tools.js')
 var classNames = require('classnames');
 
 var me = module.exports;
