@@ -20,7 +20,7 @@
 
 .chd-history-chart__chart-graph-area {
     // pointer-events: all;
-    fill: $bg_color;
+    fill: rgba(0, 0, 0, 0);
     cursor: default;
 }
 .chd-history-chart__chart-graph-area_dragging {
@@ -29,7 +29,7 @@
 
 .chd-history-chart__line {
     fill: none;
-    stroke-width: 1px;
+    stroke-width: 1.5px;
 }
 
 .chd-history-chart__forecast-circle {

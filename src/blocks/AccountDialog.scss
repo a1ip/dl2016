@@ -1,4 +1,4 @@
-.chd-user-value-dialog {
+.chd-account-dialog {
     display:none;
     position: absolute;
     top:0px;
@@ -7,11 +7,11 @@
     height: 100%;
     background: rgba(255, 255, 255, .8);
 }
-.chd-user-value-dialog_visible {
+.chd-account-dialog_visible {
     display: block;
 }
 
-.chd-user-value-dialog__panel {
+.chd-account-dialog__panel {
     margin: auto;
     width: 300px;
     background: white;
@@ -20,10 +20,10 @@
     padding: 20px 30px;
 }
 
-.chd-user-value-dialog__row {
+.chd-account-dialog__row {
     padding-bottom: 6px;
 }
-.chd-user-value-dialog__row-span {
+.chd-account-dialog__row-span {
     display: inline-block;
     vertical-align: middle;
 }

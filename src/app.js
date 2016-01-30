@@ -17,16 +17,18 @@ var createStore = Redux.compose(
   DevTools.instrument()
 )(Redux.createStore);
 
-var reducerSources = ['uid', 'calc', 'ui', 'history', 'downloading']
 function getReducer() {
   return chainReducers([
       require('./actions/uid.js').reducer,
-      require('./actions/calc.js').reducer,
-      require('./actions/ui.js').reducer,
+      require('./actions/currencies.js').reducer,
       require('./actions/history.js').reducer,
       require('./actions/downloading.js').reducer,
+      require('./actions/accounts.js').reducer,
+      require('./actions/ui.js').reducer,
     ])
 }
+var reducerSources = ['uid', 'currencies', 'history', 'downloading', 'accounts', 'ui']
+var getSourcePath = name => './actions/' + name + '.js'
 
 
 var store = createStore(getReducer())
@@ -36,11 +38,8 @@ function refreshStore() {
   store.replaceReducer(getReducer())
 }
 if (module.hot) {
-  module.hot.accept('./actions/uid.js', refreshStore)
-  module.hot.accept('./actions/calc.js', refreshStore)
-  module.hot.accept('./actions/ui.js', refreshStore)
-  module.hot.accept('./actions/history.js', refreshStore)
-  module.hot.accept('./actions/downloading.js', refreshStore)
+  reducerSources.forEach(name =>
+    module.hot.accept(getSourcePath(name), refreshStore))
 }
 
 var origDispatch = store.dispatch
@@ -52,50 +51,52 @@ store.dispatch = function() {
   return r
 }
 
-var calc = require('./actions/calc.js')
-store.dispatch(calc.act.setCurrencies(config))
-store.dispatch(calc.act.addUserValue({
+var currencies = require('./actions/currencies.js')
+store.dispatch(currencies.act.setCurrencies(config))
+
+var accounts = require('./actions/accounts.js')
+store.dispatch(accounts.act.addAccount({
     currencyId: 'rub',
     amount: 100000,
-    rate: 10,
+    percent: 10,
   }))
-store.dispatch(calc.act.addUserValue({
+store.dispatch(accounts.act.addAccount({
     currencyId: 'usd',
     amount: 1000,
-    rate: 2,
+    percent: 2,
   }))
-store.dispatch(calc.act.addUserValue({
+store.dispatch(accounts.act.addAccount({
     currencyId: 'eur',
     amount: 1000,
-    rate: 2,
+    percent: 2,
   }))
-// store.dispatch(calc.act.addUserValue({
-//     currencyId: 'jpy',
-//     amount: 1000,
-//     rate: 2,
-//   }))
+store.dispatch(accounts.act.addAccount({
+    currencyId: 'jpy',
+    amount: 1000,
+    percent: 2,
+  }))
 var downloading = require('./actions/downloading.js')
 store.dispatch(downloading.act.download(quandlApi))
 
 
 
 function mapDispatchToProps(dispatch, {componentId}) {
-  var sources = [
-    './actions/calc.js',
-    './actions/ui.js',
-    './actions/history.js',
-  ]
-  var funs = {}
-  sources.forEach((source) => {
+  // var sources = [
+  //   './actions/calc.js',
+  //   './actions/ui.js',
+  //   './actions/history.js',
+  // ]
+  var callbacks = {}
+  reducerSources.map(getSourcePath).forEach((source) => {
     var {act} = require(source)
     for (var k in act) {
       if (typeof act[k] === 'function') {
-        funs[k] = act[k]
+        callbacks[k] = act[k]
       }
     }
   })
   return {
-    funs: Redux.bindActionCreators(funs, dispatch)
+    callbacks: Redux.bindActionCreators(callbacks, dispatch)
   }
 };
 

@@ -3,53 +3,64 @@ var React = require('react')
 var classNames = require('classnames')
 var {mapsep, formatNumber, reactPure} = require('../tools/tools.js')
 var {InputText, InputSelect} = require('./dribs.jsx')
-var UserValues = require('./UserValues.jsx')
+var Accounts = require('./Accounts.jsx')
 var HistoryChart = require('./HistoryChart.jsx')
-var UserValueDialog = require('./UserValueDialog.jsx')
+var AccountDialog = require('./AccountDialog.jsx')
 
 /**
  *
- * * funs
+ * * callbacks
  *     * setWidthDeposits(boolean)
  *     * changeCurCurrency(currencyId)
- *     * changeUserValue(userValueId, currencyId, amount, rate)
- *     * deleteUserValue(userValueId)
- *     * openEditUserValue(userValueId)
- *     * openAddUserValue()
+ *     * changeAccount(AccountId, currencyId, amount, percent)
+ *     * deleteAccount(AccountId)
+ *     * openEditAccount(AccountId)
+ *     * openAddAccount()
  *     * hideCurrencySelector()
  *
- * * calc
- *     * withDeposits - boolean
+ * * currencies
  *     * curCurrencyId
  *     * currencies - (id -> currency) map
- *     * userValues - (id -> userValue) map
  *     * currencyIds - array of ids
- *     * userValueIds - array of ids
- * * ui
- *     * isAddingUserValue - boolean
- *     * editingUserValueId - undefined or userValueId
  * * history
- *     ... are described in HistoryChart.jsx
+ *     * todayDate
+ *     * history
+ *     * prices
+ *     * forecast
+ * * downloading
+ *     * isDownloading
+ *     * downloadingCurrencyId
+ *     * loadedCurrencyIds
+ * * accounts
+ *     * withDeposits - boolean
+ *     * accountIds - array of ids
+ *     * accounts - (id -> account) map
+ * * ui
+ *     * isAddingAccount: false,
+ *     * editingAccountId: undefined,
+ *     * accountCurrencyId: undefined,
+ *     * draggingCurrency: undefined,
  *
  * Where:
  * * currency
- *     * id
  *     * sign
  *     * displayName
- *     * price
  *     * color
- * * userValue
- *     * id
+ * * account
  *     * currencyId
  *     * amount
- *     * rate
+ *     * percent
  */
 
 var Page = reactPure(function Page (props) {
-  var {
-    calc: {curCurrencyId, currencies, userValues},
-    ui: {draggingCurrency},
-  } = props
+  var {prices} = props.history
+  var {withDeposits, accounts} = props.accounts
+  var {setWithDeposits, setCurCurrency} = props.callbacks
+  var {draggingCurrency} = props.ui
+  // var {
+  //   calc: {curCurrencyId, currencies, accounts},
+  //   ui: {draggingCurrency},
+  // } = props
 
   return (
     <div className='chd-page'>
@@ -58,41 +69,48 @@ var Page = reactPure(function Page (props) {
           <Header/>
         </span>
         <span className='chd-page__c0 chd-page__c02'>
-          <WithDepositsCheckbox {...props}/>
+          <WithDepositsCheckbox withDeposits={withDeposits}
+                                setWithDeposits={setWithDeposits}/>
         </span>
         <span className='chd-page__c0 chd-page__c03'>
-          <CurCurrencySelector {...props}/>
+          <CurCurrencySelector {...props.currencies}
+                               setCurCurrency={setCurCurrency}/>
         </span>
       </div>
       <div>
         <span className='chd-page__c1 chd-page__c11'>
-          <UserValues {...props}/>
+          <Accounts currencies={props.currencies}
+                    accounts={props.accounts}
+                    prices={prices}
+                    callbacks={props.callbacks}/>
         </span>
         <span className='chd-page__c1 chd-page__c12'>
-          <HistoryChart {...props.history}
-                        curCurrencyId={curCurrencyId}
+          <HistoryChart currencies={props.currencies}
+                        history={props.history}
                         draggingCurrency={draggingCurrency}
-                        currencies={currencies}
-                        userValues={userValues}
-                        funs={props.funs}/>
+                        accounts={accounts}
+                        callbacks={props.callbacks}/>
         </span>
         <span className='chd-page__c1 chd-page__c13'>
-          <UserChart {...props}/>
+          <UserChart currencies={props.currencies}
+                     history={props.history}
+                     accounts={accounts}
+                     callbacks={props.callbacks}/>
         </span>
       </div>
-      <UserValueDialog {...props}/>
+      <AccountDialog currencies={props.currencies}
+                     ui={props.ui}
+                     callbacks={props.callbacks}/>
     </div>
   )
 })
 
 var Header = reactPure(function Header() {
-  console.log('Header')
   return <div className='chd-header'>Прогноз сбережений</div>
 })
 
 var WithDepositsCheckbox = reactPure(function WithDepositsCheckbox(props) {
-  var {withDeposits} = props.calc
-  var {setWithDeposits} = props.funs
+  var {withDeposits, setWithDeposits} = props
   return (
     <div className='chd-with-deposits-checkbox'>
       <input type='checkbox' checked={withDeposits}
@@ -103,8 +121,8 @@ var WithDepositsCheckbox = reactPure(function WithDepositsCheckbox(props) {
 })
 
 var CurCurrencySelector = reactPure(function CurCurrencySelector(props) {
-  var {currencies, currencyIds, curCurrencyId} = props.calc
-  var {setCurCurrency} = props.funs
+  var {currencies, currencyIds, curCurrencyId} = props
+  var {setCurCurrency} = props
   return (
     <div className='chd-cur-currency-selector'>
       <span className='chd-cur-currency-selector__label'>Моя валюта </span>

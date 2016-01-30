@@ -1,8 +1,8 @@
-.chd-user-values {
+.chd-accounts {
     font-size: $font_size_main;
 }
 
-.chd-user-values-header__c_disabled {
+.chd-accounts-header__c_disabled {
     color: $text_color_disabled;
 }
 
@@ -28,7 +28,7 @@
 }
 
 
-.chd-user-value-row__sign {
+.chd-account-row__sign {
     text-align: center;
     display: inline-block;
     width: 11px;
@@ -37,16 +37,18 @@
     border-radius: $border_radius;
 }
 
-.chd-user-value-row__amount {
+.chd-account-row__amount {
     width: 68px;
 }
 
-.chd-user-value-row__amount-cur {
+.chd-account-row__amount-cur {
     padding-top:1px;
     display: block;
+    text-align: right;
+    padding-right:25px;
 }
 
-.chd-user-value-row__rate {
+.chd-account-row__percent {
     width: 57px;
 }
 

@@ -1,18 +1,19 @@
 'use strict';
 var {getActionConstRegistrator, getSimpleActionsRegistrator} = require('@evoja/redux-actions')
 var {createComplexEvReducer, wrapEvReducer, chainReducers} = require('@evoja/redux-reducers')
-var {assign, access} = require('@evoja/ns-plain');
-var {assignExisting, removeSpaces, getYearAgoDate} = require('../tools/tools.js');
-var {act: uidAct} = require('./uid.js');
-var calcStateNs = require('./calc.js').STATE_NS;
+var {assign} = require('@evoja/ns-plain');
+var {getYearAgoDate} = require('../tools/tools.js')
 
-var act = {};
-var STATE_NS = 'history';
-var registerActionConst = getActionConstRegistrator(STATE_NS + '__', act);
+var {getters: {getCurrencies},
+   act: currenciesAct} = require('./currencies.js')
+
+var act = {}
+var STATE_NS = 'history'
+var registerActionConst = getActionConstRegistrator(STATE_NS + '__', act)
 var registerSimpleActions = getSimpleActionsRegistrator(act);
 
 function getBaseCurrency(state) {
-  var currencies = access(calcStateNs, state).currencies
+  var currencies = getCurrencies(state)
   for (var currencyId in currencies) {
     if (!currencies[currencyId].apiId) {
       return currencyId
@@ -20,13 +21,14 @@ function getBaseCurrency(state) {
   }
 }
 
-registerActionConst(['SET_HISTORY_CURRENCY',
-  'SET_FORECAST_POINT'
+registerActionConst(['SET_HISTORY_CURRENCY', 'SET_FORECAST_POINT',
+  'SET_TODAY_DATE',
 ]);
 
 registerSimpleActions({
   setHistoryCurrency: [act.SET_HISTORY_CURRENCY, 'currencyId', 'data'],
   setForecastPoint: [act.SET_FORECAST_POINT, 'currencyId', 'pointNumber', 'price'],
+  setTodayDate: [act.SET_TODAY_DATE, 'todayDate'],
 });
 
 var defaultState = {
@@ -55,13 +57,26 @@ var defaultState = {
 var localReducer = createComplexEvReducer(defaultState, [
   ['forecast.{pointNumber}.{currencyId}', act.SET_FORECAST_POINT,
     (_, {price}) => price],
+  ['todayDate', act.SET_TODAY_DATE, (_, {todayDate}) => todayDate],
 ]);
 
 var globalReducer = createComplexEvReducer([
+  ['', currenciesAct.SET_CURRENCIES, (globalState, _) => {
+      var baseCurrencyId = getBaseCurrency(globalState)
+      var prices = {}
+      prices[baseCurrencyId] = 1
+      return assign(STATE_NS + '.prices', globalState, prices)
+    }],
   ['', act.SET_HISTORY_CURRENCY, (globalState, {currencyId, data}) => {
+      if (!data || data.length == 0) {
+        return globalState
+      }
+
       var state = globalState[STATE_NS]
-      var prices = {...state.prices}
       var yearAgoDate = getYearAgoDate(state.todayDate)
+      var baseCurrencyId = getBaseCurrency(globalState)
+
+      var prices = {...state.prices}
       prices[currencyId] = data[0] && Number(data[0].value)
 
       var history = {...state.history}
@@ -69,33 +84,33 @@ var globalReducer = createComplexEvReducer([
         if (new Date(date) >= yearAgoDate) {
           history[date] = {...history[date]}
           history[date][currencyId] = Number(value)
-        }
-      })
-      var baseCurrencyId = getBaseCurrency(globalState)
-      Object.keys(history).forEach(date => {
-        if (history[date][baseCurrencyId] !== 1) {
-          history[date] = {...history[date]}
           history[date][baseCurrencyId] = 1
         }
       })
 
       var forecast = state.forecast.map(d => {
         d = {...d}
-        d[currencyId] = prices[currencyId]
-        if (d[baseCurrencyId] !== 1) {
+        if (isNaN(d[currencyId])) {
+          d[currencyId] = prices[currencyId]
+        }
+        if (isNaN(d[baseCurrencyId])) {
           d[baseCurrencyId] = 1
         }
         return d
       })
+
       globalState = {...globalState}
       globalState[STATE_NS] = {...state, prices, history, forecast}
       return globalState
-    }]
+    }],
   ])
 
 module.exports = {
-  STATE_NS,
   act,
-  reducer: chainReducers([wrapEvReducer(STATE_NS, localReducer), globalReducer])
+  reducer: chainReducers([wrapEvReducer(STATE_NS, localReducer), globalReducer]),
+  getters: {
+    getPrices: state => state[STATE_NS].prices,
+    getTodayDate: state => state[STATE_NS].todayDate,
+  }
 };
 

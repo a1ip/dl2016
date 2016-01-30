@@ -6,14 +6,6 @@ var me = module.exports
 me.mapsep = (ids, values, iter) =>
   ids.map(id => iter(values[id], id))
 
-me.assignExisting = (to, from) => {
-  var res = {...to}
-  for(var key in from) {
-    res[key] = from[key] !== undefined ? from[key] : to[key]
-  }
-  return res
-}
-
 me.formatNumber = (num) => {
   var str = isNaN(Number(num)) ? '' : ('' + num);
   for(var k = 1, i = str.length - 1; i > 0; --i, ++k) {
@@ -23,8 +15,6 @@ me.formatNumber = (num) => {
   }
   return str
 }
-
-me.removeSpaces = (x) => ('' + x).replace(/ /g, '')
 
 me.reactPure = (render, name) => typeof render !== 'function'
   ? render
@@ -50,4 +40,12 @@ me.getForecastDate = function getForecastDate(todayDate, pointNumber) {
   return new Date(new Date(todayDate).getTime() + DAYS[pointNumber] * ONE_DAY_MS)
 }
 
-
+me.assert = (condition, message) => {
+    if (!condition) {
+        message = message || "Assertion failed";
+        if (typeof Error !== "undefined") {
+            throw new Error(message)
+        }
+        throw message
+    }
+}
