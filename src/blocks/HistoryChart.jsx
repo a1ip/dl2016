@@ -17,7 +17,9 @@ var HistoryChart = reactPure(function HistoryChart (props) {
         <TheChart {...props}/>
       </div>
       <div className='chd-history-chart__x'>
-        год назад, сегодня, через год
+        <div className='chd-history-chart__x-left'>год назад</div>
+        <div className='chd-history-chart__x-center'>сегодня</div>
+        <div className='chd-history-chart__x-right'>через год</div>
       </div>
     </div>
   )
@@ -45,12 +47,6 @@ var HistoryChart = reactPure(function HistoryChart (props) {
  */
 var TheChart = reactPure(function TheChart(props) {
   var {draggingCurrency, currencies, history, accounts} = props
-  // var {
-  //   draggingCurrency,
-  //   currencies: {currencies, curCurrencyId},
-  //   history: {history, forecast, prices, todayDate},
-  //   accounts
-  // }
   var {startDrag, stopDrag, setForecastPoint} = props.callbacks
 
   var chartGeom = getChartGeom()
@@ -62,24 +58,15 @@ var TheChart = reactPure(function TheChart(props) {
     .append('g')
       .attr('transform', 'translate(' + chartGeom.margin.left + ',' + chartGeom.margin.top + ')')
 
-  // var xAxis = d3.svg.axis().scale(x).orient('bottom')
-  // var yAxis = d3.svg.axis().scale(y).orient('left')
-  var {histY} = appendHistoryLine(graphArea, props, chartGeom)
-  var {onMove} = appendMovementRect(graphArea, props, chartGeom, histY)
-  appendForecastControls(graphArea, props, chartGeom, histY, onMove)
-
-
-    // .append('g')
-    //   .attr('transform', 'rotate(-90)')
-    //   .attr('y', 6)
-    //   .attr('dy', '.71em')
-    //   .style('text-anchor', 'end')
-    //   .text('Price ($)')
-
-  // // Change stuff using actual DOM functions.
-  // // Even perform CSS selections.
-  // el.style.setProperty('color', 'red')
-  // el.setAttribute('class', 'box')
+  var {histarrs, histX, histY} = getScalesAndHistarrs(props, chartGeom)
+  if (histY) {
+    appendAxes(graphArea, chartGeom, histY)
+    appendHistoryLine(graphArea, props, histarrs, histX, histY)
+    if (draggingCurrency) {
+      var {onMove} = appendMovementRect(graphArea, props, chartGeom, histY)
+    }
+    appendForecastControls(graphArea, props, chartGeom, histY, onMove)
+  }
   return el.toReact()
 })
 
@@ -155,16 +142,16 @@ function formatDate(date) {
 
 
 function getChartGeom() {
-  var margin = {top: 5, right: 5, bottom: 20, left: 30}
-  var fullWidth = 253
-  var fullHeight = 195
+  var margin = {top: 7, right: 23, bottom: 3, left: 29}
+  var fullWidth = 272
+  var fullHeight = 182
+  var axisYLabelsTranslate = 6
   var width = fullWidth - margin.left - margin.right
   var height = fullHeight - margin.top - margin.bottom
-  return {margin, width, height, fullWidth, fullHeight}
+  return {margin, width, height, fullWidth, fullHeight, axisYLabelsTranslate}
 }
 
-
-function appendHistoryLine(graphArea, props, chartGeom) {
+function getScalesAndHistarrs(props, chartGeom) {
   var {
     currencies: {currencies, curCurrencyId},
     history: {history, forecast, todayDate},
@@ -184,14 +171,29 @@ function appendHistoryLine(graphArea, props, chartGeom) {
       dateToNum(getYearAgoDate(todayDate)),
       dateToNum(getForecastDate(todayDate, forecast.length - 1))
     ])
+  var extentY = getExtentOfAll(histarrs, d => d.value);
+  var diffExtentY = (extentY[1] - extentY[0]) * .1
+  if (isNaN(diffExtentY)) {
+    return {}
+  }
+  var minY = Math.max(0, extentY[0] - diffExtentY)
+  var maxY = extentY[1] + diffExtentY
   var histY = d3.scale.linear()
-    .range([height * .9, height * .1])
-    .domain(getExtentOfAll(histarrs, d => d.value))
+    .range([height, 0])
+    .domain([minY, maxY])
+
+  return {histarrs, histX, histY}
+}
+
+
+function appendHistoryLine(graphArea, props, histarrs, histX, histY) {
+  var {
+    currencies: {currencies},
+  } = props
 
   var line = d3.svg.line()
     .x(d => histX(d.date))
     .y(d => histY(d.value))
-
 
   histarrs.forEach(function({currencyId, data}) {
     graphArea
@@ -290,7 +292,47 @@ function appendForecastControls(graphArea, props, chartGeom, histY, onMove) {
   })
 }
 
+function axesRound(v) {
+  var k = v >= 10 ? 1
+        : v >= 1 ? 10
+        : 100
+  return Math.round(v * k) / k
+}
 
+function appendAxes(graphArea, chartGeom, histY) {
+  var {width, height, axisYLabelsTranslate, margin: {top, left}} = chartGeom
+
+  var scaleAxisX = d3.scale.linear()
+    .range([0, width])
+    .domain([0, 4])
+  var axisX = d3.svg.axis()
+    .scale(scaleAxisX)
+    .orient('bottom')
+    .ticks(4)
+    .outerTickSize(0)
+    .innerTickSize(-height)
+  graphArea.append('g')
+    .attr('class', 'chd-history-chart__axis chd-history-chart__axis_x')
+    .attr('transform', 'translate(0, ' + height + ')')
+    .call(axisX)
+
+
+  var scaleAxisY = d3.scale.linear()
+    .range([0, height])
+    .domain([0, 5])
+  var axisY = d3.svg.axis()
+    .scale(scaleAxisY)
+    .orient('left')
+    .tickValues([0, 1, 2, 3, 4, null])
+    .tickFormat(v => v !== null && '' + axesRound(histY.invert(height / 4 * v)))
+    .innerTickSize(-width)
+    .outerTickSize(0)
+  graphArea.append('g')
+    .attr('class', 'chd-history-chart__axis')
+    .call(axisY)
+    .selectAll('text')
+    .attr('transform', 'translate(0, ' + axisYLabelsTranslate + ')')
+}
 
 
 module.exports = HistoryChart

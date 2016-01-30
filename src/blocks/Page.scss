@@ -1,13 +1,14 @@
 .chd-page {
     position: relative;
+    background: $bg_color;
+    // color: green;
+    // position: absolute;
     // top: 26px;
     width: 858px;
     font-family: Helvetica;
     font-size: $font_size_main;
     border: solid 1px $border_color;
     padding: 20px 30px;
-    // color: green;
-    background: $bg_color;
 }
 .chd-page__c0 {
     display: inline-block;
