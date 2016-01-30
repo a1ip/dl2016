@@ -1,16 +1,17 @@
-$chd_history_chart_margin_left: 29px;
-$chd_history_chart_margin_right: 23px;
+$chd_history_chart__margin_left: 29px;
+$chd_history_chart__margin_right: 23px;
+$chd_history_chart__dragging_cursor: ns-resize;
 .chd-history-chart {
     width: 272px;
     height: 223px;
 }
 .chd-history-chart__title {
-    margin-left: $chd_history_chart_margin_left;
+    margin-left: $chd_history_chart__margin_left;
     padding-bottom: 0px;
 }
 .chd-history-chart__x {
-    margin-left: $chd_history_chart_margin_left;
-    margin-right: $chd_history_chart_margin_right;
+    margin-left: $chd_history_chart__margin_left;
+    margin-right: $chd_history_chart__margin_right;
     display:block;
     position: relative;
 }
@@ -43,7 +44,7 @@ $chd_history_chart_margin_right: 23px;
     cursor: default;
 }
 .chd-history-chart__chart-graph-area_dragging {
-    cursor: pointer;
+    cursor: $chd_history_chart__dragging_cursor;
 }
 
 .chd-history-chart__line {
@@ -53,7 +54,7 @@ $chd_history_chart_margin_right: 23px;
 
 .chd-history-chart__forecast-circle {
     r: 3px;
-    cursor: pointer;
+    cursor: $chd_history_chart__dragging_cursor;
 }
 
 .chd-history-chart__axis path,

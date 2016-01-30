@@ -62,10 +62,12 @@ var TheChart = reactPure(function TheChart(props) {
   if (histY) {
     appendAxes(graphArea, chartGeom, histY)
     appendHistoryLine(graphArea, props, histarrs, histX, histY)
+    var {forecarrs, forecX, forecY} = getScalesAndForecarrs(props, chartGeom, histY)
     if (draggingCurrency) {
+      appendForecastLabels(graphArea, props, forecarrs, chartGeom, forecX, forecY)
       var {onMove} = appendMovementRect(graphArea, props, chartGeom, histY)
     }
-    appendForecastControls(graphArea, props, chartGeom, histY, onMove)
+    appendForecastControls(graphArea, props, forecarrs, forecX, forecY, onMove)
   }
   return el.toReact()
 })
@@ -146,9 +148,11 @@ function getChartGeom() {
   var fullWidth = 272
   var fullHeight = 182
   var axisYLabelsTranslate = 6
+  var forecastLabelsYTranslate = -8
   var width = fullWidth - margin.left - margin.right
   var height = fullHeight - margin.top - margin.bottom
-  return {margin, width, height, fullWidth, fullHeight, axisYLabelsTranslate}
+  return {margin, width, height, fullWidth, fullHeight,
+    axisYLabelsTranslate, forecastLabelsYTranslate}
 }
 
 function getScalesAndHistarrs(props, chartGeom) {
@@ -183,6 +187,26 @@ function getScalesAndHistarrs(props, chartGeom) {
     .domain([minY, maxY])
 
   return {histarrs, histX, histY}
+}
+
+function getScalesAndForecarrs(props, chartGeom, histY) {
+  var {
+    currencies: {currencies, curCurrencyId},
+    history: {history, forecast, todayDate},
+    accounts
+  } = props
+  var {width, height} = chartGeom
+
+  var forecastObj = {}
+  forecast.forEach((d, i) => forecastObj[i] = d)
+  var forecarrs = getHistarrs(forecastObj, currencies, curCurrencyId, accounts, x => Number(x))
+
+  var forecX = d3.scale.linear()
+    .range([width * 5 / 8, width])
+    .domain([0, forecast.length - 1])
+  var forecY = histY
+
+  return {forecX, forecY, forecarrs}
 }
 
 
@@ -241,23 +265,11 @@ function appendMovementRect(graphArea, props, chartGeom, histY) {
   return {onMove}
 }
 
-function appendForecastControls(graphArea, props, chartGeom, histY, onMove) {
+function appendForecastControls(graphArea, props, forecarrs, forecX, forecY, onMove) {
   var {
-    currencies: {currencies, curCurrencyId},
-    history: {history, forecast, todayDate},
-    accounts
+    currencies: {currencies},
   } = props
-  var {width, height} = chartGeom
   var {startDrag, stopDrag} = props.callbacks
-
-  var forecastObj = {}
-  forecast.forEach((d, i) => forecastObj[i] = d)
-  var forecarrs = getHistarrs(forecastObj, currencies, curCurrencyId, accounts, x => Number(x))
-
-  var forecX = d3.scale.linear()
-    .range([width * 5 / 8, width])
-    .domain([0, forecast.length - 1])
-  var forecY = histY
 
   var CIRCLE_CLASS = 'chd-history-chart__forecast-circle'
   var getCircleClass = (currencyId) => CIRCLE_CLASS + '_' + currencyId
@@ -300,7 +312,7 @@ function axesRound(v) {
 }
 
 function appendAxes(graphArea, chartGeom, histY) {
-  var {width, height, axisYLabelsTranslate, margin: {top, left}} = chartGeom
+  var {width, height, axisYLabelsTranslate} = chartGeom
 
   var scaleAxisX = d3.scale.linear()
     .range([0, width])
@@ -332,6 +344,39 @@ function appendAxes(graphArea, chartGeom, histY) {
     .call(axisY)
     .selectAll('text')
     .attr('transform', 'translate(0, ' + axisYLabelsTranslate + ')')
+}
+
+function appendForecastLabels(graphArea, props, forecarrs, chartGeom, forecX, forecY) {
+  var {
+    draggingCurrency: {currencyId, pointNumber},
+  } = props
+  var {forecastLabelsYTranslate} = chartGeom
+  var forecarr = forecarrs.filter(forecarr => forecarr.currencyId == currencyId)[0]
+
+  var className = 'chd-history-chart__forecast-label'
+  var getText = d => d.date % 2 == 0 && axesRound(d.value)
+  graphArea.selectAll('text.' + className)
+        .data(forecarr.data)
+      .enter()
+        .append('text')
+        .attr('class', className)
+        .attr('transform', d => getText(d) &&
+          'translate('
+            + (forecX(d.date) - getTextWidth(getText(d))/2) + ', '
+            + (forecY(d.value) + forecastLabelsYTranslate) + ')')
+        .text(getText)
+}
+
+function getTextWidth(text, className) {
+  var div = document.createElement('div')
+  var elem = d3.select(div)
+    .attr('class', className)
+    .attr('style', 'display:block;position:absolute;visibility:hidden;')
+    .text(text)
+  document.body.appendChild(div)
+  var width = div.offsetWidth
+  div.remove()
+  return width
 }
 
 
