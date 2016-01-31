@@ -30,3 +30,8 @@ me.SubTitleSmall = reactPure(function SubTitleSmall(props) {
   var className = classNames('chd-sub-title-small', props.className)
   return <div {...props} className={className} />
 })
+
+me.Button = reactPure(function Button(props) {
+  var className = classNames('chd-button', props.className)
+  return <button {...props} className={className}/>
+})

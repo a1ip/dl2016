@@ -35,4 +35,11 @@
     color: $text_color_light;
 }
 
-
+.chd-button {
+    font-size: $font_size_button;
+    color: $text_color_inverted_light;
+    background: linear-gradient(0deg, #09F, #3bf); ;
+    border: none;
+    border-radius: $border_radius;
+    padding: 4px 8px;
+}

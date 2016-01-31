@@ -112,6 +112,11 @@ ReactDom.render(
   document.getElementById('datalaboratory-ru-2016-01-app')
 )
 
+document.onkeydown = (e) => {
+  if (e.keyCode == 27) {
+    store.dispatch(require(getSourcePath('ui')).act.closePopups())
+  }
+}
 
 
 /*

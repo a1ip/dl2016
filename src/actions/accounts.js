@@ -89,6 +89,9 @@ var reducer = createComplexEvReducer(defaultState, [
   }],
 
   ['', act.ADD_ACCOUNT, (state, {accountId, account}) => {
+    if (!account.currencyId) {
+      return state;
+    }
     if (state.accounts[accountId]) {
       return state;
     }

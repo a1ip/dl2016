@@ -2,7 +2,7 @@
 var React = require('react')
 var classNames = require('classnames')
 var {mapsep, formatNumber, reactPure} = require('../tools/tools.js')
-var {InputText, InputSelect, TitleSmall} = require('./dribs.jsx')
+var {InputText, InputSelect, TitleSmall, Button} = require('./dribs.jsx')
 
 /**
  * * currencies
@@ -35,7 +35,9 @@ var Accounts = reactPure(function Accounts (props) {
                     accountId={id}
                     key={id}/>
       )}
-      <button onClick={openAddAccount}>+ Валюта</button>
+      <div className='chd-accounts__button-container'>
+        <Button onClick={openAddAccount}>+ Валюта</Button>
+      </div>
     </div>
   )
 })
