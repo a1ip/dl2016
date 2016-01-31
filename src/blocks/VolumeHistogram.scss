@@ -1,23 +1,49 @@
+$chd_volume_histogram__margin_left: 26px;
+$chd_volume_histogram__margin_right: 28px;
 
 .chd-volume-histogram {
-    width: 276px;
+    width: 279px;
     height: 223px;
 }
 
 .chd-volume-histogram__axis text {
-    font-size: $font_size_main;
+    font-size: $font_size_volume_histogram_axis;
 }
 
-// .chd-history-chart__axis path,
-// .chd-history-chart__axis line {
-//     fill: none;
-//     stroke: $chart_axes_color;
-//     shape-rendering: crispEdges;
-// }
-// .chd-history-chart__axis text {
-//     font-size: $font_size_main;
-// }
+.chd-volume-histogram__x {
+    margin-left: $chd_volume_histogram__margin_left;
+    margin-right: $chd_volume_histogram__margin_right;
+}
+.chd-volume-histogram__x:after {
+    display:block;
+    content: ' ';
+    clear: both;
+}
 
-// .chd-history-chart__axis_x text {
-//     display:none;
-// }
+
+.chd-volume-histogram__x-left {
+    float: left;
+}
+.chd-volume-histogram__x-right {
+    float: right;
+}
+
+
+
+
+.chd-volume-histogram__totals {
+    font-weight: bold;
+    font-size: $font_size_volume_histogram_totals;
+    margin-left: $chd_volume_histogram__margin_left;
+}
+.chd-volume-histogram__totals:after {
+    display:block;
+    content: ' ';
+    clear: both;
+}
+.chd-volume-histogram__totals-left {
+    float: left;
+}
+.chd-volume-histogram__totals-right {
+    float: right;
+}

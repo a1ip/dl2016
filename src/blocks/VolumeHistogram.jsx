@@ -3,16 +3,38 @@ var React = require('react')
 var d3 = require('d3')
 var classNames = require('classnames')
 var ReactFauxDOM = require('react-faux-dom')
-var {reactPure, roundlabelillo, axisillo} = require('../tools/tools.js')
+var {reactPure, roundlabelillo, axisillo, formatNumber} = require('../tools/tools.js')
 var {TitleSmall, SubTitleSmall} = require('./dribs.jsx')
+
+var labels = ['', 'тыс', 'млн', 'млрд', 'трлн', 'квадрлн', 'квинтлн', 'секстлн', 'квинтлн']
 
 
 var VolumeHistogram = reactPure(function VolumeHistogram (props) {
+  var {totalLeft, totalRight} = getEdges(props)
   return (
     <div className='chd-volume-histogram'>
-      <TheHistogram {...props}
-        labels={['', 'тыс', 'млн', 'млрд', 'трлн', 'квадрлн', 'квинтлн', 'секстлн', 'квинтлн']}/>
+      <TheHistogram {...props} labels={labels}/>
+      <div className='chd-volume-histogram__x'>
+        <div className='chd-volume-histogram__x-left'>сегодня</div>
+        <div className='chd-volume-histogram__x-right'>через год</div>
+      </div>
+      <div className='chd-volume-histogram__totals'>
+        <div className='chd-volume-histogram__totals-left'>
+          <Totals value={totalLeft} currencies={props.currencies}/>
+        </div>
+        <div className='chd-volume-histogram__totals-right'>
+          <Totals value={totalRight} currencies={props.currencies}/>
+        </div>
+      </div>
     </div>
+  )
+})
+
+var Totals = reactPure(function Totals({value, currencies: {currencies, curCurrencyId}}) {
+  return (
+    <span>
+      {formatNumber(value) + ' ' + currencies[curCurrencyId].sign}
+    </span>
   )
 })
 
@@ -34,14 +56,28 @@ var TheHistogram = reactPure(function TheChart(props) {
 
   var volumeArr = getVolumeArr(props)
   var scales = getScales(volumeArr, chartGeom, labels)
-  appendAxes(graphArea, chartGeom, scales)
+  appendAxes(graphArea, chartGeom, scales, currencies[curCurrencyId].sign)
   appendDiagram(volumeArr, currencies, graphArea, scales.scaleX, scales.scaleY)
   return el.toReact()
 })
 
-function getAccountVolume(account, pointNumber, forecast, curCurrencyId) {
+
+function getEdges(props) {
+  var {
+    accounts: {accounts, withDeposits},
+    history: {prices, forecast},
+    currencies: {curCurrencyId}
+  } = props;
+  var left = collectVolumesForPoint(accounts, withDeposits, prices, 0, curCurrencyId)
+  var right = collectVolumesForPoint(accounts, withDeposits, forecast[forecast.length - 1], 1, curCurrencyId)
+  return {
+    totalLeft: Math.round(left.totalValue),
+    totalRight: Math.round(right.totalValue)
+  }
+}
+
+function getAccountVolume(account, prices, partOfYear, curCurrencyId) {
   var {amount, currencyId, percent} = account
-  var prices = forecast[pointNumber]
   var rate = 1 + percent / 100
 
   if (!prices[currencyId] || !prices[curCurrencyId]) {
@@ -49,7 +85,7 @@ function getAccountVolume(account, pointNumber, forecast, curCurrencyId) {
   }
 
   var value = amount * prices[currencyId] / prices[curCurrencyId]
-  var deposit = Math.pow(rate, (pointNumber + 1) / 4) * value - value
+  var deposit = Math.pow(rate, partOfYear) * value - value
   return {value, deposit}
 }
 
@@ -78,42 +114,44 @@ function getVolumeArr(props) {
   var {
     currencies: {curCurrencyId},
     history: {forecast},
-    accounts: {withDeposits, accounts, accountIds}
+    accounts: {withDeposits, accounts}
   } = props
-  var volumeArr = forecast.map((d, pointNumber) => {
-    var totalValue = 0
-    var totalDeposit = 0
-    var currencyVolumes = {}
-    accountIds.forEach(accountId => {
-      var account = accounts[accountId]
-      var currencyId = account.currencyId
-      var currencyVolume = currencyVolumes[currencyId] || {
-        value: 0,
-        deposit: 0
-      }
-      currencyVolumes[currencyId] = currencyVolume
-      var accountVolume = getAccountVolume(account, pointNumber, forecast, curCurrencyId)
-      if (accountVolume) {
-        var {value, deposit} = accountVolume
-        currencyVolume.value += value
-        currencyVolume.deposit += withDeposits ? deposit : 0
-        totalValue += value
-        totalDeposit += withDeposits ? deposit : 0
-      }
-    })
-    var cumSum = 0;
-    var currencyVolumesArr = Object.keys(currencyVolumes).map(currencyId => {
-      var prevSum = cumSum;
-      var volume = currencyVolumes[currencyId]
-      cumSum += volume.value + volume.deposit
-      return {...volume, currencyId, prevSum}
-    })
-    return {totalValue, totalDeposit, currencyVolumesArr, pointNumber}
+  return forecast.map((d, pointNumber) => {
+    var volume = collectVolumesForPoint(accounts, withDeposits, forecast[pointNumber],
+                            (pointNumber + 1) / forecast.length, curCurrencyId)
+    volume.pointNumber = pointNumber
+    return volume
   })
-
-  return volumeArr
 }
 
+function collectVolumesForPoint(accounts, withDeposits, prices, partOfYear, curCurrencyId) {
+  var totalValue = 0
+  var currencyVolumes = {}
+  Object.keys(accounts).forEach(accountId => {
+    var account = accounts[accountId]
+    var currencyId = account.currencyId
+    var currencyVolume = currencyVolumes[currencyId] || {
+      value: 0,
+      deposit: 0
+    }
+    currencyVolumes[currencyId] = currencyVolume
+    var accountVolume = getAccountVolume(account, prices, partOfYear, curCurrencyId)
+    if (accountVolume) {
+      var {value, deposit} = accountVolume
+      currencyVolume.value += value
+      currencyVolume.deposit += withDeposits ? deposit : 0
+      totalValue += value + (withDeposits ? deposit : 0)
+    }
+  })
+  var cumSum = 0;
+  var currencyVolumesArr = Object.keys(currencyVolumes).map(currencyId => {
+    var prevSum = cumSum;
+    var volume = currencyVolumes[currencyId]
+    cumSum += volume.value + volume.deposit
+    return {...volume, currencyId, prevSum}
+  })
+  return {totalValue, currencyVolumesArr}
+}
 
 
 
@@ -134,22 +172,24 @@ function getScales(volumeArr, chartGeom, labels) {
 
 
 function getChartGeom() {
-  var margin = {top: 7, right: 23, bottom: 3, left: 29}
-  var fullWidth = 272
-  var fullHeight = 182
-  var axisYLabelsTranslate = 6
+  var margin = {top: 0, right: 27, bottom: 2, left: 26}
+  var fullWidth = 279
+  var fullHeight = 206
+  var axisYLabelsTranslate = 8
+  var axisLabelXLabelsTranslate = -3
   var width = fullWidth - margin.left - margin.right
   var height = fullHeight - margin.top - margin.bottom
   return {margin, width, height, fullWidth, fullHeight,
-    axisYLabelsTranslate}
+    axisYLabelsTranslate, axisLabelXLabelsTranslate}
 }
 
 
 
-function appendAxes(graphArea, chartGeom, scales) {
-  var {axisYLabelsTranslate} = chartGeom
+function appendAxes(graphArea, chartGeom, scales, curCurrencySign) {
+  var {axisYLabelsTranslate, axisLabelXLabelsTranslate} = chartGeom
   var {max, scaleY, axisScale} = scales
   var {label, backKoeff, koeff} = max
+  label = label + ' ' + curCurrencySign
 
   var axisY = d3.svg.axis()
     .scale(axisScale)
@@ -163,6 +203,22 @@ function appendAxes(graphArea, chartGeom, scales) {
     .call(axisY)
     .selectAll('text')
     .attr('transform', 'translate(0, ' + axisYLabelsTranslate + ')')
+
+  var axisLabel = d3.svg.axis()
+    .scale(axisScale)
+    .ticks(1)
+    .tickFormat(v => v && label)
+    .orient('right')
+    .innerTickSize(0)
+    .outerTickSize(0)
+  graphArea.append('g')
+    .attr('class', 'chd-volume-histogram__axis')
+    .call(axisLabel)
+    .selectAll('text')
+    .attr('transform', 'translate('
+      + axisLabelXLabelsTranslate + ', '
+      + axisYLabelsTranslate + ')')
+
 }
 
 function appendDiagram(volumeArr, currencies, graphArea, scaleX, scaleY) {
