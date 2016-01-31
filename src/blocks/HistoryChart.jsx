@@ -360,14 +360,16 @@ function appendForecastLabels(graphArea, props, forecarrs, chartGeom, forecX, fo
       .enter()
         .append('text')
         .attr('class', className)
-        .attr('transform', d => getText(d) &&
-          'translate('
+        .attr('transform', d => 'translate('
             + (forecX(d.date) - getTextWidth(getText(d))/2) + ', '
             + (forecY(d.value) + forecastLabelsYTranslate) + ')')
         .text(getText)
 }
 
 function getTextWidth(text, className) {
+  if (!text) {
+    return 0;
+  }
   var div = document.createElement('div')
   var elem = d3.select(div)
     .attr('class', className)

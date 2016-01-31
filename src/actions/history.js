@@ -56,7 +56,7 @@ var defaultState = {
 
 var localReducer = createComplexEvReducer(defaultState, [
   ['forecast.{pointNumber}.{currencyId}', act.SET_FORECAST_POINT,
-    (_, {price}) => price],
+    (_, {price}) => Math.max(Number.EPSILON, price)],
   ['todayDate', act.SET_TODAY_DATE, (_, {todayDate}) => todayDate],
 ]);
 

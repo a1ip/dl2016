@@ -228,7 +228,6 @@ function appendAxes(graphArea, chartGeom, scales, curCurrencySign) {
 
 function appendDiagram(volumeArr, currencies, graphArea, scaleX, scaleY) {
   var heightScale = v => scaleY(0) - scaleY(v)
-  console.log('aaa', volumeArr)
   var pointGroups = graphArea
     .selectAll('g.chd-volume-histogram__column')
       .data(volumeArr)
@@ -261,7 +260,7 @@ function appendDiagram(volumeArr, currencies, graphArea, scaleX, scaleY) {
         .append('rect')
         .attr('width', scaleX(1) - 1)
         .attr('height', r => heightScale(r.value))
-        .style('fill', r => (console.log(r, r.currencyId), currencies[r.currencyId].color))
+        .style('fill', r => currencies[r.currencyId].color)
         .style('opacity', r => r.isDeposit ? .5 : 1)
         .attr('transform', r => 'translate(0, ' + scaleY(r.prevSum + r.value) + ')')
 }
