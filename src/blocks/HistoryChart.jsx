@@ -287,6 +287,7 @@ function appendForecastControls(graphArea, props, forecarrs, forecX, forecY, onM
         .classed(classes)
         .attr('cx', d => forecX(d.date))
         .attr('cy', d => forecY(d.value))
+        .attr('r', '3px')
         .style('fill', color)
         .on('mousedown', (d) => {
             d3.event.preventDefault()
