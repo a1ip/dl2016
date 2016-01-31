@@ -13,12 +13,13 @@ var registerActionConst = getActionConstRegistrator(STATE_NS + '__', act)
 var registerSimpleActions = getSimpleActionsRegistrator(act);
 
 registerActionConst(['SET_HISTORY_CURRENCY', 'SET_FORECAST_POINT',
-  'SET_TODAY_DATE',
+  'SET_TODAY_DATE', 'SET_FORECAST'
 ]);
 
 registerSimpleActions({
   setHistoryCurrency: [act.SET_HISTORY_CURRENCY, 'currencyId', 'data'],
   setForecastPoint: [act.SET_FORECAST_POINT, 'currencyId', 'pointNumber', 'price'],
+  setForecast: [act.SET_FORECAST, 'forecast'],
   setTodayDate: [act.SET_TODAY_DATE, 'todayDate'],
 });
 
@@ -48,7 +49,8 @@ var defaultState = {
 var localReducer = createComplexEvReducer(defaultState, [
   ['forecast.{pointNumber}.{currencyId}', act.SET_FORECAST_POINT,
     (_, {price}) => Math.max(Number.EPSILON, price)],
-  ['todayDate', act.SET_TODAY_DATE, (_, {todayDate}) => todayDate],
+  ['todayDate', act.SET_TODAY_DATE, (_, {todayDate}) => new Date(todayDate)],
+  ['forecast', act.SET_FORECAST, (_, {forecast}) => forecast],
 ]);
 
 var globalReducer = createComplexEvReducer([
@@ -102,6 +104,7 @@ module.exports = {
   getters: {
     getPrices: state => state[STATE_NS].prices,
     getTodayDate: state => state[STATE_NS].todayDate,
+    getForecast: state => state[STATE_NS].forecast,
   }
 };
 

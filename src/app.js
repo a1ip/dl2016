@@ -9,11 +9,12 @@ var {chainReducers} = require('@evoja/redux-reducers')
 var quandlApi = require('./tools/quandl-api.js')
 var config = require('./config.js')
 var Page = require('./blocks/Page.jsx')
+var {localforageMiddleware, restoreStateFromLocalStorage} = require('./actions/local-storage.js')
 import DevTools from './DevTools.jsx'
 
 
 var createStore = Redux.compose(
-  Redux.applyMiddleware(thunk),
+  Redux.applyMiddleware(thunk,localforageMiddleware),
   DevTools.instrument()
 )(Redux.createStore);
 
@@ -55,37 +56,13 @@ var currencies = require('./actions/currencies.js')
 store.dispatch(currencies.act.setCurrencies(config))
 
 var accounts = require('./actions/accounts.js')
-store.dispatch(accounts.act.addAccount({
-    currencyId: 'rub',
-    amount: 100000,
-    percent: 10,
-  }))
-store.dispatch(accounts.act.addAccount({
-    currencyId: 'usd',
-    amount: 1000,
-    percent: 2,
-  }))
-store.dispatch(accounts.act.addAccount({
-    currencyId: 'eur',
-    amount: 1000,
-    percent: 2,
-  }))
-store.dispatch(accounts.act.addAccount({
-    currencyId: 'jpy',
-    amount: 1000,
-    percent: 2,
-  }))
 var downloading = require('./actions/downloading.js')
 store.dispatch(downloading.act.download(quandlApi))
+restoreStateFromLocalStorage(store.dispatch)
 
 
 
 function mapDispatchToProps(dispatch, {componentId}) {
-  // var sources = [
-  //   './actions/calc.js',
-  //   './actions/ui.js',
-  //   './actions/history.js',
-  // ]
   var callbacks = {}
   reducerSources.map(getSourcePath).forEach((source) => {
     var {act} = require(source)

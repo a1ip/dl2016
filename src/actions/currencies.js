@@ -18,6 +18,10 @@ function getBaseCurrency(state) {
   }
 }
 
+function getCurCurrencyId(state) {
+  return state[STATE_NS].curCurrencyId
+}
+
 
 var act = {};
 var STATE_NS = 'currencies';
@@ -43,6 +47,9 @@ act.setCurrencies = (currenciesArr) => (dispatch, getState) => {
   dispatch(act.simpleSetCurrencies(currenciesArr))
   return ipinfo()
     .then(function success(result) {
+        if (getCurCurrencyId(getState())) {
+          return
+        }
         if (result && result.country) {
           var currencyId = getCurrencyByCountry(result.country)
           if (getCurrencies(getState())[currencyId]) {
@@ -52,6 +59,9 @@ act.setCurrencies = (currenciesArr) => (dispatch, getState) => {
         }
         dispatch(act.setCurCurrency(getBaseCurrency(getState())))
       }, function error() {
+        if (getCurrencyIds(getState())) {
+          return
+        }
         dispatch(act.setCurCurrency(getBaseCurrency(getState())))
       })
 }
@@ -101,7 +111,7 @@ module.exports = {
   getters: {
     getCurrencies: getCurrencies,
     getCurrencyIds: state => state[STATE_NS].currencyIds,
-    getCurCurrencyId: state => state[STATE_NS].curCurrencyId,
+    getCurCurrencyId: getCurCurrencyId,
     getBaseCurrency: getBaseCurrency,
   }
 };

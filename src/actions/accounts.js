@@ -110,6 +110,7 @@ module.exports = {
   getters: {
     getAccounts: state => state[STATE_NS].accounts,
     getAccountIds: state => state[STATE_NS].accountIds,
+    getWithDeposits: state => state[STATE_NS].withDeposits,
   }
 };
 
