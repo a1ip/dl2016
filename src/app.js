@@ -9,7 +9,8 @@ var {chainReducers} = require('@evoja/redux-reducers')
 var quandlApi = require('./tools/quandl-api.js')
 var config = require('./config.js')
 var Page = require('./blocks/Page.jsx')
-var {localforageMiddleware, restoreStateFromLocalStorage} = require('./actions/local-storage.js')
+var {localforageMiddleware, restoreStateFromLocalStorage, applySavingState} = require('./actions/local-storage.js')
+var {extractSavingStateFromUri} = require('./actions/sharing.js')
 import DevTools from './DevTools.jsx'
 
 
@@ -58,7 +59,13 @@ store.dispatch(currencies.act.setCurrencies(config))
 var accounts = require('./actions/accounts.js')
 var downloading = require('./actions/downloading.js')
 store.dispatch(downloading.act.download(quandlApi))
-restoreStateFromLocalStorage(store.dispatch)
+var savingState = extractSavingStateFromUri()
+console.log('hoho')
+if (savingState) {
+  applySavingState(savingState, store.dispatch)
+} else {
+  restoreStateFromLocalStorage(store.dispatch)
+}
 
 
 

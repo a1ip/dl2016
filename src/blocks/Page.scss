@@ -10,6 +10,13 @@
     border: solid 1px $border_color;
     padding: 20px 30px;
 }
+
+.chd-page__row:after {
+    content: " ";
+    display: block;
+    clear: both;
+}
+
 .chd-page__c0 {
     display: inline-block;
     vertical-align: middle;
