@@ -4,25 +4,25 @@ module.exports = [{
     id: 'eur',
     sign: '€',
     displayName: 'евро',
-    color: '#2b2',
+    color: '#f90',
     apiId: null
   }, {
     id: 'usd',
     sign: '$',
     displayName: 'доллар США',
-    color: '#22b',
+    color: '#093',
     apiId: 'EURUSD'
   }, {
     id: 'rub',
     sign: '₽',
     displayName: 'рубль',
-    color: '#b22',
+    color: '#06c',
     apiId: 'EURRUB'
   }, {
     id: 'jpy',
     sign: '¥',
     displayName: 'японская йена',
-    color: '#b2b',
+    color: '#E22',
     apiId: 'EURJPY'
   }
 ]
