@@ -2,6 +2,23 @@
 var {getActionConstRegistrator, getSimpleActionsRegistrator} = require('@evoja/redux-actions')
 var {createComplexEvReducer, wrapEvReducer} = require('@evoja/redux-reducers')
 
+var ipinfo = require('../tools/ipinfo-api.js')
+var countries = require('../countries.js')
+
+function getCurrencies(state) {
+  return state[STATE_NS].currencies
+}
+
+function getBaseCurrency(state) {
+  var currencies = getCurrencies(state)
+  for (var currencyId in currencies) {
+    if (!currencies[currencyId].apiId) {
+      return currencyId
+    }
+  }
+}
+
+
 var act = {};
 var STATE_NS = 'currencies';
 var registerActionConst = getActionConstRegistrator(STATE_NS + '__', act);
@@ -9,9 +26,35 @@ var registerSimpleActions = getSimpleActionsRegistrator(act);
 
 registerActionConst(['SET_CURRENCIES', 'SET_CUR_CURRENCY']);
 registerSimpleActions({
-  setCurrencies: [act.SET_CURRENCIES, 'currenciesArr'],
+  simpleSetCurrencies: [act.SET_CURRENCIES, 'currenciesArr'],
   setCurCurrency: [act.SET_CUR_CURRENCY, 'curCurrencyId'],
 })
+
+var getCurrencyByCountry = (country) => {
+  for (var currencyId in countries) {
+    if (countries[currencyId].indexOf(country.toUpperCase()) >= 0) {
+      return currencyId
+    }
+  }
+  return undefined
+}
+
+act.setCurrencies = (currenciesArr) => (dispatch, getState) => {
+  dispatch(act.simpleSetCurrencies(currenciesArr))
+  return ipinfo()
+    .then(function success(result) {
+        if (result && result.country) {
+          var currencyId = getCurrencyByCountry(result.country)
+          if (getCurrencies(getState())[currencyId]) {
+            dispatch(act.setCurCurrency(currencyId))
+            return;
+          }
+        }
+        dispatch(act.setCurCurrency(getBaseCurrency(getState())))
+      }, function error() {
+        dispatch(act.setCurCurrency(getBaseCurrency(getState())))
+      })
+}
 
 var defaultState = {
   currencies: {
@@ -47,7 +90,7 @@ var reducer = createComplexEvReducer(defaultState, [
       ...state,
       currencies,
       currencyIds,
-      curCurrencyId: currencyIds[0]
+      curCurrencyId: undefined
     }
   }],
 ]);
@@ -56,9 +99,10 @@ module.exports = {
   act,
   reducer: wrapEvReducer(STATE_NS, reducer),
   getters: {
-    getCurrencies: state => state[STATE_NS].currencies,
+    getCurrencies: getCurrencies,
     getCurrencyIds: state => state[STATE_NS].currencyIds,
     getCurCurrencyId: state => state[STATE_NS].curCurrencyId,
+    getBaseCurrency: getBaseCurrency,
   }
 };
 

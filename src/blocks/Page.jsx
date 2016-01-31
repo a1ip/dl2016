@@ -58,10 +58,14 @@ var Page = reactPure(function Page (props) {
   var {withDeposits, accounts} = props.accounts
   var {setWithDeposits, setCurCurrency} = props.callbacks
   var {draggingCurrency} = props.ui
-  // var {
-  //   calc: {curCurrencyId, currencies, accounts},
-  //   ui: {draggingCurrency},
-  // } = props
+
+  if (!props.currencies.curCurrencyId) {
+    return (
+      <div className='chd-page'>
+        <div className='chd-spinner-layer'/>
+      </div>
+    )
+  }
 
   return (
     <div className='chd-page'>

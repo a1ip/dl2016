@@ -4,22 +4,13 @@ var {createComplexEvReducer, wrapEvReducer, chainReducers} = require('@evoja/red
 var {assign} = require('@evoja/ns-plain');
 var {getYearAgoDate} = require('../tools/tools.js')
 
-var {getters: {getCurrencies},
+var {getters: {getBaseCurrency},
    act: currenciesAct} = require('./currencies.js')
 
 var act = {}
 var STATE_NS = 'history'
 var registerActionConst = getActionConstRegistrator(STATE_NS + '__', act)
 var registerSimpleActions = getSimpleActionsRegistrator(act);
-
-function getBaseCurrency(state) {
-  var currencies = getCurrencies(state)
-  for (var currencyId in currencies) {
-    if (!currencies[currencyId].apiId) {
-      return currencyId
-    }
-  }
-}
 
 registerActionConst(['SET_HISTORY_CURRENCY', 'SET_FORECAST_POINT',
   'SET_TODAY_DATE',

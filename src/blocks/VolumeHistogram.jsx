@@ -262,6 +262,7 @@ function appendDiagram(volumeArr, currencies, graphArea, scaleX, scaleY) {
         .attr('height', r => heightScale(r.value))
         .style('fill', r => currencies[r.currencyId].color)
         .style('opacity', r => r.isDeposit ? .5 : 1)
+        .style('shape-rendering', 'crispEdges')
         .attr('transform', r => 'translate(0, ' + scaleY(r.prevSum + r.value) + ')')
 }
 
