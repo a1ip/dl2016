@@ -1,7 +1,10 @@
 'use strict'
 
+var deflate = require('../tools/rawdeflate.js')
+var inflate = require('../tools/rawinflate.js')
+
 function getUriFromSavingState (savingState) {
-  return btoa(utf8_to_prezip(JSON.stringify(savingState)))
+  return btoa(deflate(utf8_to_prezip(JSON.stringify(savingState))))
 }
 function getSavingStateStringFromUri (uri) {
   var first = uri.indexOf('?savingState=') + '?savingState='.length
@@ -12,18 +15,24 @@ function getSavingStateStringFromUri (uri) {
   var last = part.indexOf('&')
   last = last == -1 ? part.length : last
   part = part.substring(0, last)
-  return prezip_to_utf8(atob(part))
+  return prezip_to_utf8(inflate(atob(part)))
 }
 
 function utf8_to_prezip(str) {
-  return unescape(encodeURIComponent(str))
+  return encodeURIComponent(str)
+  // return unescape(encodeURIComponent(str))
 }
 function prezip_to_utf8(str) {
-  return decodeURIComponent(escape(str))
+  return decodeURIComponent(str)
+  // return decodeURIComponent(escape(str))
 }
 
 function getLink(uri) {
-  return location.origin + location.pathname + "?savingState=" + uri;
+  // Dancing for Firefox where location.origin is 'null' for 'file:' protocol
+  var origin = location.origin && location.origin != 'null' && location.origin
+    || (location.protocol + (location.port || '') + '//');
+  console.log('well', origin)
+  return origin + location.pathname + "?savingState=" + uri;
 }
 
 function getUri() {
@@ -48,9 +57,25 @@ function extractSavingStateFromUri() {
   }
 }
 
+function selectTargetText(e) {
+  console.log(e)
+  e.preventDefault()
+
+  if (document.selection) {
+    var range = document.body.createTextRange();
+    range.moveToElementText(e.target);
+    range.select();
+  } else if (window.getSelection) {
+    var range = document.createRange();
+    range.selectNode(e.target);
+    window.getSelection().addRange(range);
+  }
+}
+
 module.exports = {
   extractSavingStateFromUri,
   getUriFromSavingState,
-  getLink
+  getLink,
+  selectTargetText
 }
 

@@ -7,7 +7,7 @@ var Accounts = require('./Accounts.jsx')
 var HistoryChart = require('./HistoryChart.jsx')
 var AccountDialog = require('./AccountDialog.jsx')
 var VolumeHistogram = require('./VolumeHistogram.jsx')
-var {getUriFromSavingState, getLink} = require('../actions/sharing.js')
+var {getUriFromSavingState, getLink, selectTargetText} = require('../actions/sharing.js')
 var {extractSavingState} = require('../actions/local-storage.js')
 
 /**
@@ -82,9 +82,9 @@ var Page = reactPure(function Page (props) {
                                 setWithDeposits={setWithDeposits}/>
         </span>
         <span className='chd-page__c0 chd-page__c02'>
-          <a className='chd-share-link'
-             href={getLink(shareUri)}
-             title='Поделиться'>Поделиться</a>
+          <div className='chd-share-link'
+            onClick={selectTargetText}
+            title='Поделиться'>{getLink(shareUri)}</div>
         </span>
         <span className='chd-page__c0 chd-page__c03'>
           <CurCurrencySelector {...props.currencies}

@@ -29,6 +29,9 @@
 .chd-page__c01 {
     padding-right: 14px;
 }
+.chd-page__c02 {
+    padding-right: 14px;
+}
 .chd-page__c03 {
     display: block;
     float: right;
@@ -61,4 +64,32 @@
     background-position: 50% 50%;
     background-repeat: no-repeat;
     background-size: 30px 30px;
+}
+
+.chd-share-link:before {
+    content: " ";
+    opacity: 0.5;
+    position:relative;
+    float: left;
+    display: block;
+    width: 13px;
+    height: 13px;
+    margin-right: 5px;
+    background-image: url('../share.png');
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    overflow: hidden;
+    color: rgba(0, 0, 0, 0);
+}
+
+.chd-share-link {
+    width: 100px;
+    color: $text_color_light;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre;
+    border: solid 1px $border_color;
+    padding: 2px;
+    border-radius: $border_radius;
 }
