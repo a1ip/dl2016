@@ -11,14 +11,22 @@
 }
 
 .chd-input-select {
-    border: solid 1px #def;
-    border-radius: $border_radius;
-    color: #4af;
-    background: inherit;
-    width: 31px;
-    height: 21px;
-}
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: none;
 
+    border: solid 1px #ace;
+    border-radius: $border_radius;
+    color: #06C;
+    padding: 2px 14px 3px 6px;
+
+    background-image: url(../dribs_select-triangle.png);
+    background-repeat: no-repeat;
+    background-position-x: 17px;
+    background-position-y: 6px;
+    background-size: 5px;
+}
 .chd-color-picker {
     width: 16px;
     height: 16px;
