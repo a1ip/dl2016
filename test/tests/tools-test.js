@@ -57,7 +57,7 @@ exports.test_roundlabelillo = function(test) {
 }
 
 exports.test_axisillo = function(test) {
-  var {max, chartScale, axisScale, axis} = axisillo([1, 3, 4], x => x, labels)
+  var {max, chartScale, axisScale, axis} = axisillo([1, 3, 4], x => x, labels, 3)
   chartScale = chartScale.range([0, 100])
   axisScale = axisScale.range([0, 100])
   test.deepEqual(max, {value: 4, koeff: 1, backKoeff: 1, label: ''})
@@ -67,7 +67,7 @@ exports.test_axisillo = function(test) {
   test.equal(axisScale(4), 100)
 
 
-  var {max, chartScale, axisScale, axis} = axisillo([31000, 33000, 44000], x => x, labels)
+  var {max, chartScale, axisScale, axis} = axisillo([31000, 33000, 44000], x => x, labels, 3)
   chartScale = chartScale.range([0, 100])
   axisScale = axisScale.range([0, 100])
   test.deepEqual(max, {value: 1, koeff: 100000, backKoeff: 100, label: 'thou'})
@@ -77,7 +77,7 @@ exports.test_axisillo = function(test) {
   test.equal(axisScale(100), 100)
 
 
-  var {max, chartScale, axisScale, axis} = axisillo([200000, 201000, 202000], x => x, labels)
+  var {max, chartScale, axisScale, axis} = axisillo([200000, 201000, 202000], x => x, labels, 3)
   chartScale = chartScale.range([0, 100])
   axisScale = axisScale.range([0, 100])
   test.deepEqual(max, {value: 6, koeff: 100000, backKoeff: 100, label: 'thou'})

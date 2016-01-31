@@ -31,7 +31,6 @@ function getLink(uri) {
   // Dancing for Firefox where location.origin is 'null' for 'file:' protocol
   var origin = location.origin && location.origin != 'null' && location.origin
     || (location.protocol + (location.port || '') + '//');
-  console.log('well', origin)
   return origin + location.pathname + "?savingState=" + uri;
 }
 
@@ -58,7 +57,6 @@ function extractSavingStateFromUri() {
 }
 
 function selectTargetText(e) {
-  console.log(e)
   e.preventDefault()
 
   if (document.selection) {

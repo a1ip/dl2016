@@ -11,13 +11,8 @@ var config = require('./config.js')
 var Page = require('./blocks/Page.jsx')
 var {localforageMiddleware, restoreStateFromLocalStorage, applySavingState} = require('./actions/local-storage.js')
 var {extractSavingStateFromUri} = require('./actions/sharing.js')
-import DevTools from './DevTools.jsx'
 
-
-var createStore = Redux.compose(
-  Redux.applyMiddleware(thunk,localforageMiddleware),
-  DevTools.instrument()
-)(Redux.createStore);
+var createStore = Redux.applyMiddleware(thunk, localforageMiddleware)(Redux.createStore)
 
 function getReducer() {
   return chainReducers([
@@ -34,15 +29,6 @@ var getSourcePath = name => './actions/' + name + '.js'
 
 
 var store = createStore(getReducer())
-// Hot reload reducers (requires Webpack or Browserify HMR to be enabled)
-
-function refreshStore() {
-  store.replaceReducer(getReducer())
-}
-if (module.hot) {
-  reducerSources.forEach(name =>
-    module.hot.accept(getSourcePath(name), refreshStore))
-}
 
 var origDispatch = store.dispatch
 store.dispatch = function() {
@@ -60,7 +46,7 @@ var accounts = require('./actions/accounts.js')
 var downloading = require('./actions/downloading.js')
 store.dispatch(downloading.act.download(quandlApi))
 var savingState = extractSavingStateFromUri()
-console.log('hoho')
+
 if (savingState) {
   applySavingState(savingState, store.dispatch)
 } else {
@@ -90,7 +76,6 @@ ReactDom.render(
   <Provider store={store}>
     <div>
       <WrappedPage/>
-      <DevTools/>
     </div>
   </Provider>,
   document.getElementById('datalaboratory-ru-2016-01-app')
@@ -103,6 +88,5 @@ document.onkeydown = (e) => {
 }
 
 
-/*
-TODO: The style of the button "+ Валюта"
- */
+
+
