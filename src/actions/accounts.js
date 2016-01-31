@@ -93,7 +93,8 @@ var reducer = createComplexEvReducer(defaultState, [
       return state;
     }
     var amount = cleanAmount(account.amount)
-    state = assign('accounts.' + accountId, state, {...account, amount})
+    var percent = cleanAmount(account.percent)
+    state = assign('accounts.' + accountId, state, {...account, amount, percent})
     return assign('accountIds.' + state.accountIds.length, state, accountId)
   }],
 

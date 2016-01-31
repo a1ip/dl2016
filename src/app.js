@@ -46,7 +46,7 @@ var origDispatch = store.dispatch
 store.dispatch = function() {
   var r = origDispatch.apply(store, arguments)
   if (r instanceof Promise) {
-    r.then(null, e => console.error(e.stackTrace))
+    r.then(null, e => console.error(e.stack))
   }
   return r
 }

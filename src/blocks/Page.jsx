@@ -6,6 +6,7 @@ var {InputText, InputSelect} = require('./dribs.jsx')
 var Accounts = require('./Accounts.jsx')
 var HistoryChart = require('./HistoryChart.jsx')
 var AccountDialog = require('./AccountDialog.jsx')
+var VolumeHistogram = require('./VolumeHistogram.jsx')
 
 /**
  *
@@ -92,10 +93,10 @@ var Page = reactPure(function Page (props) {
                         callbacks={props.callbacks}/>
         </span>
         <span className='chd-page__c1 chd-page__c13'>
-          <UserChart currencies={props.currencies}
-                     history={props.history}
-                     accounts={accounts}
-                     callbacks={props.callbacks}/>
+          <VolumeHistogram currencies={props.currencies}
+                           history={props.history}
+                           accounts={props.accounts}
+                           callbacks={props.callbacks}/>
         </span>
       </div>
       <AccountDialog currencies={props.currencies}
@@ -138,15 +139,6 @@ var CurCurrencySelector = reactPure(function CurCurrencySelector(props) {
 })
 
 
-
-
-var UserChart = reactPure(function UserChart () {
-  return (
-    <div className='chd-user-chart'>
-      User Chart
-    </div>
-  )
-})
 
 
 module.exports = Page

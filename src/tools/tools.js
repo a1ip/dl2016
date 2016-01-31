@@ -1,5 +1,6 @@
 'use strict'
 var React = require('react')
+var d3 = require('d3')
 var PureRenderMixin = require('react-addons-pure-render-mixin')
 var me = module.exports
 
@@ -48,4 +49,44 @@ me.assert = (condition, message) => {
         }
         throw message
     }
+}
+
+me.roundillo = (value) => {
+  var koeff = 1;
+  var num = value;
+  while (Math.ceil(num) >= 10) {
+    koeff *= 10
+    num /= 10
+  }
+  return {
+    koeff,
+    value: Math.ceil(value / koeff)
+  }
+}
+
+me.labelillo = (labels, koeff) => {
+  var i = 0;
+  while (koeff / 1000 >= 1) {
+    koeff /= 1000
+    ++i
+  }
+  return {label: labels[i], backKoeff: koeff}
+}
+
+me.roundlabelillo = (labels, value) => {
+  var {koeff, value} = me.roundillo(value)
+  var {label, backKoeff} = me.labelillo(labels, koeff)
+  return {koeff, value, label, backKoeff}
+}
+
+me.axisillo = (data, getter, labels, minProportion) => {
+  var maximum = d3.max(data, getter)
+  var minimum = d3.min(data, getter)
+  var max = me.roundlabelillo(labels, Math.max(maximum, minimum * (minProportion || 0)))
+  var {koeff, value, backKoeff} = max
+  var chartScale = d3.scale.linear()
+    .domain([0, value * koeff])
+  var axisScale = d3.scale.linear()
+    .domain([0, value * backKoeff])
+  return {max, chartScale, axisScale}
 }
