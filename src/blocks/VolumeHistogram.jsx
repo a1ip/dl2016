@@ -172,10 +172,10 @@ function getScales(volumeArr, chartGeom, labels) {
 
 
 function getChartGeom() {
-  var margin = {top: 0, right: 27, bottom: 2, left: 26}
+  var margin = {top: 8, right: 26, bottom: 2, left: 25}
   var fullWidth = 279
   var fullHeight = 206
-  var axisYLabelsTranslate = 8
+  var axisYLabelsTranslate = 0
   var axisLabelXLabelsTranslate = -3
   var width = fullWidth - margin.left - margin.right
   var height = fullHeight - margin.top - margin.bottom
@@ -190,10 +190,15 @@ function appendAxes(graphArea, chartGeom, scales, curCurrencySign) {
   var {max, scaleY, axisScale} = scales
   var {label, backKoeff, koeff} = max
   label = label + ' ' + curCurrencySign
-
+  var tickValues = [
+      Math.round(max.value * 0.25 * 10) / 10 * max.backKoeff,
+      Math.round(max.value * 0.5 * 10) / 10 * max.backKoeff,
+      Math.round(max.value * 0.75 * 10) / 10 * max.backKoeff,
+      max.value * max.backKoeff
+  ]
   var axisY = d3.svg.axis()
     .scale(axisScale)
-    .ticks(4)
+    .tickValues(tickValues)
     .tickFormat(v => v)
     .orient('left')
     .innerTickSize(0)
@@ -206,8 +211,8 @@ function appendAxes(graphArea, chartGeom, scales, curCurrencySign) {
 
   var axisLabel = d3.svg.axis()
     .scale(axisScale)
-    .ticks(1)
-    .tickFormat(v => v && label)
+    .tickValues(tickValues)
+    .tickFormat((v, i, j) => i + 1 == tickValues.length  && label)
     .orient('right')
     .innerTickSize(0)
     .outerTickSize(0)
