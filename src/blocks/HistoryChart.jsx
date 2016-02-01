@@ -378,7 +378,7 @@ function getTextWidth(text, className) {
     .text(text)
   document.body.appendChild(div)
   var width = div.offsetWidth
-  div.remove()
+  div.parentNode.removeChild(div)
   return width
 }
 
