@@ -41,18 +41,20 @@ store.dispatch = function() {
 
 var currencies = require('./actions/currencies.js')
 store.dispatch(currencies.act.setCurrencies(config))
+  .then(() => {
+    var accounts = require('./actions/accounts.js')
+    var downloading = require('./actions/downloading.js')
+    return store.dispatch(downloading.act.download(quandlApi))
+  })
+  .then(() => {
+    var savingState = extractSavingStateFromUri()
 
-var accounts = require('./actions/accounts.js')
-var downloading = require('./actions/downloading.js')
-store.dispatch(downloading.act.download(quandlApi))
-var savingState = extractSavingStateFromUri()
-
-if (savingState) {
-  applySavingState(savingState, store.dispatch)
-} else {
-  restoreStateFromLocalStorage(store.dispatch)
-}
-
+    if (savingState) {
+      applySavingState(savingState, store.dispatch)
+    } else {
+      restoreStateFromLocalStorage(store.dispatch)
+    }
+  })
 
 
 function mapDispatchToProps(dispatch, {componentId}) {
