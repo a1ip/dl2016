@@ -1,6 +1,6 @@
 # dl-2016
 
-This is a test assignment for http://datalaboratory.ru
+This is the test assignment for http://datalaboratory.ru
 
 * [The task](http://datalaboratory.ru/events/developer-2/)
 * [The solution](http://dl2016.omich.net)

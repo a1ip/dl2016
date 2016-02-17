@@ -20,6 +20,31 @@
       background: rgba(150, 150, 150, .5);
       color: green;
     }
+
+    .Header-github {
+      display: block;
+      position: absolute;
+      top: 3.5em;
+      right: -4.5em;
+      padding: .4em 1em;
+      width: 15em;
+      text-align: center;
+      background-color: #252;
+      font-family: sans-serif;
+      font-size: .9em;
+      color: #fefefe;
+      text-decoration: none;
+      white-space: nowrap;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+      -webkit-transform-origin: 50% 50%;
+      -ms-transform-origin: 50% 50%;
+      transform-origin: 50% 50%;
+      -webkit-transition: background-color .2s;
+      transition: background-color .2s;
+    }
+
   </style>
 </head>
 <body>
@@ -38,9 +63,41 @@
     Постарайтесь угадать валюту пользователя по IP info. Сохраните данные расчёта в браузере (чур, без сервера!) и дайте возможность отправить ссылку на расчёты жене или друзьям. Сделайте добавление новой валюты простым: ограничьте изменение кода несколькими строками.
   </p>
   <div style="height:50px"></div>
-  <p>Автор: <a href="https://github.com/chivorotkiv">Chivorotkiv</a>&nbsp;&ndash; 2016</p>
+  <p>Претендент: <a href="https://github.com/chivorotkiv">Chivorotkiv</a>&nbsp;&ndash; 2016</p>
   <div style="height:50px"></div>
   <div class="chd-crazy">Hello</div>
+  <a class="Header-github" href="https://github.com/chivorotkiv/dl2016">Review on GitHub</a>
+
   <script src="out/datalaboratory-ru-2016-01.js"></script>
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+    if (typeof evoja_ya_metrika !== 'undefined' && evoja_ya_metrika) {
+      (function (d, w, c) {
+          (w[c] = w[c] || []).push(function() {
+              try {
+                  w['yaCounter' + evoja_ya_metrika] = new Ya.Metrika({
+                      id: voja_ya_metrika,
+                      clickmap:true,
+                      trackLinks:true,
+                      accurateTrackBounce:true
+                  });
+              } catch(e) { }
+          });
+
+          var n = d.getElementsByTagName("script")[0],
+              s = d.createElement("script"),
+              f = function () { n.parentNode.insertBefore(s, n); };
+          s.type = "text/javascript";
+          s.async = true;
+          s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+          if (w.opera == "[object Opera]") {
+              d.addEventListener("DOMContentLoaded", f, false);
+          } else { f(); }
+      })(document, window, "yandex_metrika_callbacks");
+    }
+  </script>
+  <!-- noscript><div><img src="https://mc.yandex.ru/watch/<evoja_ya_metrika>" style="position:absolute; left:-9999px;" alt="" /></div></noscript -->
+  <!-- /Yandex.Metrika counter -->
 </body>
 </html>

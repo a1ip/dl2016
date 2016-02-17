@@ -1,3 +1,4 @@
 /node_modules
 /out
 /static/out
+/src/host-config.js

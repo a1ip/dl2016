@@ -11,6 +11,7 @@ var config = require('./config.js')
 var Page = require('./blocks/Page.jsx')
 var {localforageMiddleware, restoreStateFromLocalStorage, applySavingState} = require('./actions/local-storage.js')
 var {extractSavingStateFromUri} = require('./actions/sharing.js')
+require('./host-config.js'); // must setup window.evoja_ya_metrika
 
 var createStore = Redux.applyMiddleware(thunk, localforageMiddleware)(Redux.createStore)
 
